@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中国大学发展的反思与前瞻｜交互式课程网页</title>
+  <meta name="description" content="知识、大学与发展第12节：中国大学发展的反思与前瞻，基于Cobalt Grid视觉系统重制的动态交互式HTML课程网页。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f7f0df;
+      --paper-2: #fffaf0;
+      --ink: #101827;
+      --muted: #65758b;
+      --cobalt: #0b55ff;
+      --cobalt-2: #0037aa;
+      --line: rgba(11, 85, 255, .28);
+      --line-dark: rgba(16, 24, 39, .12);
+      --cream-shadow: rgba(11, 85, 255, .12);
+      --glow: rgba(11, 85, 255, .22);
+      --success: #0f766e;
+      --warn: #b45309;
+      --danger: #be123c;
+      --radius: 28px;
+      --mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
+      --sans: "Hanken Grotesk", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+      --serif: "Newsreader", "Noto Serif SC", serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 5%, rgba(11,85,255,.18), transparent 28rem),
+        radial-gradient(circle at 90% 12%, rgba(11,85,255,.10), transparent 26rem),
+        linear-gradient(90deg, rgba(11,85,255,.07) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(11,85,255,.07) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, auto, 28px 28px, 28px 28px, auto;
+      font-family: var(--sans);
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+    body.dark {
+      --paper: #08111f;
+      --paper-2: #0f1b2d;
+      --ink: #f7f0df;
+      --muted: #aeb9c8;
+      --line-dark: rgba(247,240,223,.14);
+      --line: rgba(105, 154, 255, .32);
+      --cobalt: #75a6ff;
+      --cobalt-2: #b9d2ff;
+      --cream-shadow: rgba(117,166,255,.1);
+      background:
+        radial-gradient(circle at 8% 6%, rgba(117,166,255,.22), transparent 28rem),
+        radial-gradient(circle at 92% 10%, rgba(117,166,255,.12), transparent 26rem),
+        linear-gradient(90deg, rgba(117,166,255,.08) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(117,166,255,.08) 1px, transparent 1px),
+        #08111f;
+      background-size: auto, auto, 28px 28px, 28px 28px, auto;
+    }
+    a { color: var(--cobalt-2); text-decoration: none; border-bottom: 1px dotted var(--cobalt); }
+    a:hover { color: var(--cobalt); border-bottom-style: solid; }
+    .skip { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+    .skip:focus { left: 20px; top: 20px; width:auto; height:auto; z-index: 9999; background: var(--paper-2); padding: 10px 14px; border:1px solid var(--cobalt); }
+    .progress { position: fixed; top: 0; left: 0; height: 4px; width: 0%; background: var(--cobalt); z-index: 1000; box-shadow: 0 0 18px var(--glow); }
+    .topbar {
+      position: sticky; top: 0; z-index: 900;
+      backdrop-filter: blur(14px);
+      background: color-mix(in srgb, var(--paper) 82%, transparent);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner { max-width: 1480px; margin: 0 auto; display: flex; gap: 18px; align-items: center; justify-content: space-between; padding: 12px 24px; }
+    .brand { display: flex; gap: 12px; align-items: center; font-family: var(--mono); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .brand-mark { width: 34px; height: 34px; border: 2px solid var(--cobalt); position: relative; background: var(--paper-2); box-shadow: 5px 5px 0 var(--cobalt); }
+    .brand-mark::before, .brand-mark::after { content: ""; position: absolute; background: var(--cobalt); }
+    .brand-mark::before { width: 12px; height: 2px; top: 10px; left: 8px; }
+    .brand-mark::after { width: 2px; height: 12px; top: 8px; left: 13px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--cobalt); background: var(--paper-2); color: var(--cobalt-2);
+      padding: 8px 12px; border-radius: 999px; font-family: var(--mono); font-size: 12px;
+      cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 24px var(--cream-shadow); background: color-mix(in srgb, var(--paper-2) 80%, var(--cobalt) 7%); }
+    .layout { max-width: 1480px; margin: 0 auto; display: grid; grid-template-columns: minmax(220px, 300px) minmax(0,1fr); gap: 28px; padding: 0 24px 80px; }
+    aside { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 88px); overflow: auto; padding: 18px; border: 1px solid var(--line); background: color-mix(in srgb, var(--paper-2) 86%, transparent); border-radius: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.06); }
+    .toc-title { font-family: var(--mono); font-size: 12px; color: var(--cobalt-2); text-transform: uppercase; letter-spacing: .1em; margin: 0 0 10px; }
+    .toc a { display: block; color: var(--muted); border: 0; padding: 8px 10px; border-left: 2px solid transparent; border-radius: 8px; font-size: 14px; line-height: 1.35; }
+    .toc a:hover, .toc a.active { color: var(--cobalt-2); border-left-color: var(--cobalt); background: rgba(11,85,255,.07); }
+    main { min-width: 0; }
+    .hero { min-height: 78vh; display: grid; grid-template-columns: 1.05fr .95fr; gap: 32px; align-items: center; padding: 80px 0 58px; position: relative; }
+    .hero::before { content: ""; position: absolute; right: 3%; top: 12%; width: 180px; height: 180px; border: 2px solid var(--cobalt); transform: rotate(8deg); opacity: .22; pointer-events: none; }
+    .kicker { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .16em; color: var(--cobalt-2); margin-bottom: 18px; }
+    h1 { font-family: var(--serif); font-size: clamp(48px, 8vw, 116px); line-height: .92; letter-spacing: -.06em; margin: 0 0 22px; max-width: 980px; }
+    .subtitle { font-size: clamp(18px, 2vw, 24px); color: var(--muted); max-width: 820px; margin: 0; }
+    .hero-card { border: 1.5px solid var(--cobalt); background: var(--paper-2); border-radius: var(--radius); padding: 28px; box-shadow: 18px 18px 0 var(--glow); transform: rotate(-1.2deg); }
+    .hero-card h2 { margin: 0 0 12px; font-family: var(--serif); font-size: 34px; letter-spacing: -.03em; }
+    .hero-card p { color: var(--muted); margin: 0 0 18px; }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+    .mini-stat { border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: color-mix(in srgb, var(--paper) 65%, white 5%); }
+    .mini-stat strong { display: block; color: var(--cobalt-2); font-family: var(--serif); font-size: 30px; line-height: 1; }
+    .mini-stat span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    section.panel { margin: 42px 0; border: 1px solid var(--line); background: color-mix(in srgb, var(--paper-2) 88%, transparent); border-radius: 28px; padding: clamp(22px, 4vw, 42px); box-shadow: 0 22px 80px rgba(0,0,0,.055); position: relative; overflow: hidden; }
+    section.panel::after { content: ""; position: absolute; right: -28px; top: -28px; width: 84px; height: 84px; border-left: 2px solid var(--cobalt); border-bottom: 2px solid var(--cobalt); opacity: .25; transform: rotate(45deg); }
+    .section-head { display: flex; justify-content: space-between; gap: 20px; align-items: end; border-bottom: 1px solid var(--line); padding-bottom: 18px; margin-bottom: 24px; }
+    .section-head h2 { margin: 0; font-family: var(--serif); font-size: clamp(32px,4vw,58px); letter-spacing: -.05em; line-height: .95; }
+    .section-no { font-family: var(--mono); color: var(--cobalt-2); font-size: 13px; white-space: nowrap; }
+    .deckline { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+    .chip { font-family: var(--mono); font-size: 12px; color: var(--cobalt-2); border: 1px solid var(--cobalt); border-radius: 999px; padding: 7px 10px; background: rgba(11,85,255,.06); }
+    .stat-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .stat-card { background: var(--paper-2); border: 1px solid var(--line); border-radius: 24px; padding: 22px; position: relative; overflow: hidden; min-height: 190px; }
+    .stat-card::before { content:""; position:absolute; inset:0; background: linear-gradient(135deg, rgba(11,85,255,.10), transparent 55%); pointer-events:none; }
+    .stat-card .num { font-family: var(--serif); color: var(--cobalt-2); font-size: clamp(40px, 6vw, 72px); line-height: .95; letter-spacing: -.06em; position: relative; }
+    .stat-card .label { font-weight: 800; font-size: 18px; margin-top: 12px; position: relative; }
+    .stat-card .desc { color: var(--muted); font-size: 14px; margin-top: 8px; position: relative; }
+    .charts { display:grid; grid-template-columns: 1.2fr .8fr; gap: 18px; align-items: stretch; }
+    .chart-card { border: 1px solid var(--line); background: var(--paper-2); border-radius: 24px; padding: 24px; }
+    .chart-title { font-family: var(--mono); color: var(--cobalt-2); font-size: 12px; letter-spacing:.08em; text-transform:uppercase; margin-bottom: 16px; }
+    svg { max-width:100%; height:auto; }
+    .barrow { display:grid; grid-template-columns: 120px 1fr 70px; gap: 10px; align-items:center; margin: 12px 0; }
+    .bartrack { height: 14px; border: 1px solid var(--line); border-radius: 99px; overflow:hidden; background: rgba(11,85,255,.05); }
+    .bar { height: 100%; background: var(--cobalt); border-radius: 99px; width: 0%; transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
+    .timeline { position: relative; padding: 28px 0 8px; }
+    .timeline-line { position:absolute; left: 0; right:0; top: 74px; height: 2px; background: var(--cobalt); opacity:.75; }
+    .timeline-items { display:flex; gap: 12px; overflow-x:auto; padding-bottom: 16px; }
+    .time-node { min-width: 150px; border: 1px solid var(--cobalt); background: var(--paper-2); border-radius: 18px; padding: 16px; cursor:pointer; position:relative; transition: transform .2s ease, box-shadow .2s ease; }
+    .time-node::after { content:""; position:absolute; width: 10px; height:10px; border-radius:50%; background: var(--cobalt); left: 20px; top: 48px; box-shadow:0 0 0 6px var(--paper-2); }
+    .time-node:hover, .time-node.active { transform: translateY(-6px); box-shadow: 8px 8px 0 var(--glow); }
+    .time-node b { display:block; font-family:var(--serif); color: var(--cobalt-2); font-size: 30px; line-height: 1; }
+    .time-node span { display:block; color:var(--muted); font-size: 13px; margin-top: 12px; }
+    .timeline-detail { margin-top: 18px; border: 1px solid var(--line); border-radius: 20px; padding: 20px; background: color-mix(in srgb, var(--paper) 68%, white 5%); }
+    .tabs { display:flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .tab { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 9px 14px; cursor:pointer; font-family: var(--mono); font-size: 12px; }
+    .tab.active { border-color: var(--cobalt); background: var(--cobalt); color: white; }
+    .tab-panel { display:none; animation: fade .35s ease; }
+    .tab-panel.active { display:block; }
+    @keyframes fade { from {opacity:.2; transform: translateY(6px)} to {opacity:1; transform:none} }
+    .lesson-grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+    .lesson-card { border: 1px solid var(--line); border-radius: 20px; padding: 18px; background: var(--paper-2); }
+    .lesson-card h3 { font-family: var(--serif); font-size: 28px; margin:0 0 8px; letter-spacing:-.03em; }
+    .lesson-card p { color:var(--muted); margin:0; }
+    .stance-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .stance { border: 1px solid var(--line); background: var(--paper-2); border-radius: 22px; padding: 18px; }
+    .stance b { color: var(--cobalt-2); font-family: var(--serif); font-size: 24px; }
+    .stance p { color: var(--muted); margin: 8px 0 0; }
+    .searchbar { display:flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .searchbar input, .searchbar select { flex: 1; min-width: 180px; border:1px solid var(--line); border-radius: 999px; padding: 11px 14px; background: var(--paper-2); color: var(--ink); font-family: var(--sans); }
+    .resource-list { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .resource-card { border:1px solid var(--line); border-radius: 20px; padding: 18px; background: var(--paper-2); transition: transform .2s ease, box-shadow .2s ease; }
+    .resource-card:hover { transform: translateY(-4px); box-shadow: 8px 8px 0 var(--glow); }
+    .resource-card .tag { font-family: var(--mono); color: var(--cobalt-2); font-size: 11px; text-transform: uppercase; }
+    .resource-card h3 { margin:8px 0; font-family:var(--serif); font-size: 22px; letter-spacing:-.03em; }
+    .resource-card p { color:var(--muted); font-size:14px; margin:0 0 10px; }
+    .ppt-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .ppt-card { border:1px solid var(--line); border-radius: 18px; padding:16px; background:var(--paper-2); min-height: 160px; display:flex; flex-direction:column; justify-content:space-between; }
+    .ppt-card small { font-family:var(--mono); color:var(--cobalt-2); }
+    .ppt-card h3 { margin: 8px 0; font-size: 20px; font-family: var(--serif); line-height:1.1; }
+    .ppt-card p { color:var(--muted); font-size: 13px; margin:0; }
+    details.full-report-wrap { border: 1px solid var(--cobalt); background: var(--paper-2); border-radius: 28px; padding: 0; overflow: hidden; }
+    details.full-report-wrap > summary { list-style: none; cursor: pointer; padding: 24px 28px; display:flex; justify-content:space-between; gap:20px; align-items:center; font-family: var(--serif); font-size: clamp(26px,3vw,42px); font-weight:700; letter-spacing:-.04em; }
+    details.full-report-wrap > summary::-webkit-details-marker { display:none; }
+    .report-inner { padding: 0 28px 36px; }
+    .report-inner article { max-width: 100%; }
+    .report-inner h1 { font-size: clamp(34px, 5vw, 72px); line-height: 1; }
+    .report-inner h2 { font-family: var(--serif); font-size: clamp(30px,3vw,46px); letter-spacing:-.04em; margin-top: 56px; border-top: 2px solid var(--cobalt); padding-top: 18px; }
+    .report-inner h3 { font-family: var(--serif); font-size: 30px; letter-spacing:-.03em; margin-top: 38px; }
+    .report-inner h4 { font-size: 18px; margin-top: 28px; color: var(--cobalt-2); }
+    .report-inner p { max-width: 92ch; }
+    .report-inner table { width:100%; border-collapse: collapse; margin: 20px 0 32px; font-size: 14px; background: var(--paper-2); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: block; overflow-x: auto; }
+    .report-inner th, .report-inner td { border-bottom: 1px solid var(--line-dark); padding: 12px 14px; vertical-align: top; min-width: 100px; }
+    .report-inner th { background: rgba(11,85,255,.10); color: var(--cobalt-2); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing:.04em; }
+    .report-inner blockquote { border-left: 3px solid var(--cobalt); margin: 22px 0; padding: 12px 18px; background: rgba(11,85,255,.06); }
+    .report-inner img { max-width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); background: white; }
+    .citeref { display:inline-flex; align-items:center; justify-content:center; padding: .05rem .32rem; margin:0 .06rem; border-radius: 99px; background: rgba(11,85,255,.09); color: var(--cobalt-2); border: 1px solid var(--line); font-family: var(--mono); font-size: .78em; }
+    .floating-panel { position: fixed; right: 18px; bottom: 18px; z-index: 800; display:flex; flex-direction:column; gap: 10px; }
+    .fab { width: 44px; height:44px; border-radius:50%; border:1px solid var(--cobalt); background:var(--paper-2); color:var(--cobalt-2); cursor:pointer; box-shadow:0 12px 30px rgba(0,0,0,.12); }
+    .source-mode .report-inner a[href^="http"]::after, .source-mode .resource-card a::after { content:" ↗"; font-family:var(--mono); }
+    mark { background: rgba(11,85,255,.18); color:inherit; padding:0 .15em; border-radius:.25em; }
+    .print-only { display:none; }
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: relative; top:auto; max-height:none; }
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 48px; }
+      .stat-grid, .charts, .stance-grid, .lesson-grid, .resource-list, .ppt-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .topbar-inner { padding: 10px 14px; }
+      .layout { padding: 0 12px 60px; }
+      .actions .btn:nth-child(n+3) { display:none; }
+      .hero-card { box-shadow: 10px 10px 0 var(--glow); }
+      h1 { font-size: 52px; }
+      .hero-grid { grid-template-columns:1fr; }
+      section.panel { border-radius: 20px; }
+    }
+    @media print {
+      body { background: white !important; color: black; }
+      .topbar, aside, .floating-panel, .interactive-only { display:none !important; }
+      .layout { display:block; padding: 0; }
+      .hero { min-height:auto; display:block; page-break-after: always; }
+      .panel { box-shadow:none!important; border:1px solid #999!important; page-break-inside: avoid; }
+      details.full-report-wrap { border:0; }
+      details.full-report-wrap > summary { display:none; }
+      details.full-report-wrap:not([open]) .report-inner { display:block; }
+      .print-only { display:block; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#content" class="skip">跳到正文</a>
+  <div class="progress" id="progress"></div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Knowledge · University · Development / Lesson 12</span></div>
+      <div class="actions interactive-only">
+        <button class="btn" id="toggleDark">深色/浅色</button>
+        <button class="btn" id="toggleSources">来源模式</button>
+        <button class="btn" onclick="window.print()">打印讲义</button>
+        <button class="btn" id="openReport">展开全文</button>
+      </div>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="interactive-only">
+      <p class="toc-title">Classroom Navigator</p>
+      <nav class="toc" id="toc">
+        <a href="#cover">封面</a>
+        <a href="#dashboard">关键数据</a>
+        <a href="#timeline">时间线</a>
+        <a href="#tensions">六个张力</a>
+        <a href="#lesson-design">课堂设计</a>
+        <a href="#resources">资源库</a>
+        <a href="#ppt">PPT大纲</a>
+        <a href="#full-report">完整文稿</a>
+      </nav>
+      <div class="deckline" style="margin-top:18px">
+        <span class="chip">普及化</span><span class="chip">分层化</span><span class="chip">战略化</span><span class="chip">智能化</span>
+      </div>
+    </aside>
+    <main id="content">
+      <section class="hero" id="cover">
+        <div>
+          <div class="kicker">Interactive course webpage · 2026</div>
+          <h1>中国大学发展的反思与前瞻</h1>
+          <p class="subtitle">一节面向本科生的高密度课堂：以数据校准判断，以争议激活思考，以政策连接未来。</p>
+          <div class="deckline">
+            <span class="chip">知识、大学与发展</span>
+            <span class="chip">第12节</span>
+            <span class="chip">90分钟课堂</span>
+            <span class="chip">含讲稿 / 讲义 / 资源库</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h2>本节课的核心问题</h2>
+          <p>中国大学过去十几年究竟“变强”在哪里？今天最值得反思的结构性矛盾是什么？到2035年前后，中国大学应该往什么方向变？</p>
+          <div class="hero-grid">
+            <div class="mini-stat"><strong>60.8%</strong><span>2024高等教育毛入学率</span></div>
+            <div class="mini-stat"><strong>4846万</strong><span>2024高等教育总规模</span></div>
+            <div class="mini-stat"><strong>3167所</strong><span>截至2025-06-20全国高校</span></div>
+            <div class="mini-stat"><strong>1222万</strong><span>2025届毕业生预计规模</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel reveal" id="dashboard">
+        <div class="section-head"><h2>关键数据：先校准，再判断</h2><span class="section-no">01 / DATA</span></div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="num" data-count="60.8" data-suffix="%">0%</div><div class="label">普及化平台期</div><div class="desc">高等教育毛入学率从2012年的30.0%升至2024年的60.8%。</div></div>
+          <div class="stat-card"><div class="num" data-count="4846" data-suffix="万">0万</div><div class="label">总规模持续扩大</div><div class="desc">2024年高等教育总规模达到4846万人。</div></div>
+          <div class="stat-card"><div class="num" data-count="409.54" data-suffix="万">0万</div><div class="label">研究生教育上移</div><div class="desc">2024年在学研究生409.54万人，人才结构持续上移。</div></div>
+          <div class="stat-card"><div class="num" data-count="3167" data-suffix="所">0所</div><div class="label">高等学校系统</div><div class="desc">截至2025年6月20日，全国高等学校共3167所。</div></div>
+          <div class="stat-card"><div class="num" data-count="1222" data-suffix="万">0万</div><div class="label">就业结构压力</div><div class="desc">2025届高校毕业生预计1222万人，同比增加43万人。</div></div>
+          <div class="stat-card"><div class="num" data-count="2753.3" data-suffix="亿">0亿</div><div class="label">创新体系节点</div><div class="desc">2023年高校R&D经费2753.3亿元，同比增长14.1%。</div></div>
+        </div>
+        <div class="charts" style="margin-top:18px">
+          <div class="chart-card">
+            <div class="chart-title">Gross enrollment rate · 2012 → 2024</div>
+            <svg viewBox="0 0 760 300" role="img" aria-label="2012至2024高等教育毛入学率变化折线图">
+              <defs><linearGradient id="blueFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--cobalt)" stop-opacity=".26"/><stop offset="1" stop-color="var(--cobalt)" stop-opacity="0"/></linearGradient></defs>
+              <rect x="0" y="0" width="760" height="300" fill="transparent"/>
+              <g stroke="var(--line-dark)" stroke-width="1">
+                <line x1="80" y1="40" x2="720" y2="40"/><line x1="80" y1="100" x2="720" y2="100"/><line x1="80" y1="160" x2="720" y2="160"/><line x1="80" y1="220" x2="720" y2="220"/>
+              </g>
+              <path d="M80,210 L400,78 L720,74 L720,250 L80,250 Z" fill="url(#blueFill)"/>
+              <path d="M80,210 L400,78 L720,74" fill="none" stroke="var(--cobalt)" stroke-width="5" stroke-linecap="round"/>
+              <g fill="var(--paper-2)" stroke="var(--cobalt)" stroke-width="4"><circle cx="80" cy="210" r="8"/><circle cx="400" cy="78" r="8"/><circle cx="720" cy="74" r="8"/></g>
+              <g font-family="var(--mono)" font-size="14" fill="var(--muted)"><text x="66" y="275">2012</text><text x="386" y="275">2023</text><text x="706" y="275">2024</text></g>
+              <g font-family="var(--serif)" font-weight="700" font-size="30" fill="var(--cobalt-2)"><text x="46" y="194">30.0%</text><text x="365" y="62">60.2%</text><text x="684" y="58">60.8%</text></g>
+            </svg>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Scale indicators · 2024</div>
+            <div class="barrow"><span>总规模</span><div class="bartrack"><div class="bar" data-width="100"></div></div><b>4846万</b></div>
+            <div class="barrow"><span>本专科在校</span><div class="bartrack"><div class="bar" data-width="80"></div></div><b>3891万</b></div>
+            <div class="barrow"><span>研究生</span><div class="bartrack"><div class="bar" data-width="8.4"></div></div><b>409万</b></div>
+            <div class="barrow"><span>毕业生</span><div class="bartrack"><div class="bar" data-width="24"></div></div><b>1222万</b></div>
+            <p style="color:var(--muted);font-size:14px;margin-top:18px">提示：条形图仅用于课堂快速感知量级，不代表严格同一统计口径。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel reveal" id="timeline">
+        <div class="section-head"><h2>一条时间线看中国大学</h2><span class="section-no">02 / HISTORY</span></div>
+        <div class="timeline interactive-only">
+          <div class="timeline-line"></div>
+          <div class="timeline-items" id="timelineItems"></div>
+          <div class="timeline-detail" id="timelineDetail"></div>
+        </div>
+      </section>
+
+      <section class="panel reveal" id="tensions">
+        <div class="section-head"><h2>结构性反思：六个张力</h2><span class="section-no">03 / TENSIONS</span></div>
+        <div class="lesson-grid">
+          <div class="lesson-card"><h3>规模 / 质量</h3><p>普及化之后，真正的问题不再只是“有没有大学上”，而是“上什么样的大学”。</p></div>
+          <div class="lesson-card"><h3>分类 / 同质</h3><p>大学都奔向同一种研究型名校模板时，体系会变大，却未必变强。</p></div>
+          <div class="lesson-card"><h3>科研 / 教学</h3><p>“破五唯”直指评价导向失衡，也回应了本科生最直观的课堂体验。</p></div>
+          <div class="lesson-card"><h3>调整 / 稳定</h3><p>专业大调整提高响应速度，也可能让大学被短期市场热度绑架。</p></div>
+          <div class="lesson-card"><h3>就业 / 培养</h3><p>毕业生规模上升要求大学重新思考能力结构，而不只是提高就业率。</p></div>
+          <div class="lesson-card"><h3>智能 / 真实</h3><p>AI提升效率，也挑战学术诚信、隐私保护和学生独立判断。</p></div>
+        </div>
+        <div class="stance-grid" style="margin-top:18px">
+          <div class="stance"><b>政策—战略视角</b><p>大学是教育强国、科技强国、人才强国的重要支撑力量。</p></div>
+          <div class="stance"><b>改革—治理视角</b><p>关键不再是“扩多少”，而是分类发展、优化评价、改善治理。</p></div>
+          <div class="stance"><b>社会—批评视角</b><p>排名导向、文科收缩、就业焦虑与AI风险，可能使大学过度工具化。</p></div>
+        </div>
+      </section>
+
+      <section class="panel reveal" id="lesson-design">
+        <div class="section-head"><h2>课堂设计：讲授 + 数据 + 辩论</h2><span class="section-no">04 / PEDAGOGY</span></div>
+        <div class="tabs interactive-only" role="tablist" aria-label="课堂设计选项卡">
+          <button class="tab active" data-tab="tab-structure">90分钟结构</button>
+          <button class="tab" data-tab="tab-activities">课堂活动</button>
+          <button class="tab" data-tab="tab-assessment">评估方式</button>
+          <button class="tab" data-tab="tab-questions">核心问题</button>
+        </div>
+        <div id="tab-structure" class="tab-panel active">
+          <div class="lesson-grid">
+            <div class="lesson-card"><h3>0–8分钟</h3><p>导入：以2026年四所交通大学回信与“AI+教育”行动计划切入。</p></div>
+            <div class="lesson-card"><h3>8–22分钟</h3><p>历史脉络：京师大学堂、院系调整、恢复高考、重点建设与普及化。</p></div>
+            <div class="lesson-card"><h3>22–40分钟</h3><p>主要成就：普及化、研究生扩张、创新能力提升。</p></div>
+            <div class="lesson-card"><h3>40–58分钟</h3><p>结构性反思：同质化、评价导向、专业调整、就业压力。</p></div>
+            <div class="lesson-card"><h3>58–75分钟</h3><p>前瞻：教育强国纲要、区域布局、AI+教育、优质本科扩容。</p></div>
+            <div class="lesson-card"><h3>75–90分钟</h3><p>四角辩论与Exit Ticket：如果你是校长/教育部长，最想改什么？</p></div>
+          </div>
+        </div>
+        <div id="tab-activities" class="tab-panel">
+          <div class="lesson-grid">
+            <div class="lesson-card"><h3>匿名投票破题</h3><p>大学首先应该服务什么：国家战略、学生成长、学术创新、地方社会，还是就业竞争力？</p></div>
+            <div class="lesson-card"><h3>数据拼图</h3><p>5组分别阅读统计公报、双一流、专业调整、毕业生规模与AI+教育材料。</p></div>
+            <div class="lesson-card"><h3>四角辩论</h3><p>扩容优质本科、质量治理、AI重构、人文公共性四种立场。</p></div>
+            <div class="lesson-card"><h3>证据管理员</h3><p>教师不做裁判，只追问：你的论点依据哪条数据、哪项政策、哪位专家观点？</p></div>
+          </div>
+        </div>
+        <div id="tab-assessment" class="tab-panel">
+          <div class="lesson-grid">
+            <div class="lesson-card"><h3>课堂参与 20%</h3><p>投票、数据拼图、小组发言、辩论参与。</p></div>
+            <div class="lesson-card"><h3>材料单 20%</h3><p>每组提交一页“事实—解释—问题”表。</p></div>
+            <div class="lesson-card"><h3>课后作业 60%</h3><p>政策备忘录、论证短文、数据评论三类任务任选其一。</p></div>
+            <div class="lesson-card"><h3>来源规范</h3><p>所有作业要求完整标注来源、URL与访问日期。</p></div>
+          </div>
+        </div>
+        <div id="tab-questions" class="tab-panel">
+          <div class="lesson-grid">
+            <div class="lesson-card"><h3>更大还是更强？</h3><p>中国大学过去十几年最重要的变化，是规模扩张还是质量跃升？</p></div>
+            <div class="lesson-card"><h3>政策双刃剑</h3><p>“双一流”“专业调整”“AI赋能”分别解决了什么，又制造了什么？</p></div>
+            <div class="lesson-card"><h3>大学优先服务谁？</h3><p>国家战略、社会需求、学生发展、学术本身如何排序？</p></div>
+            <div class="lesson-card"><h3>好大学的定义</h3><p>在人口变化与技术变革背景下，什么样的大学才算“好大学”？</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel reveal" id="resources">
+        <div class="section-head"><h2>可筛选资源库</h2><span class="section-no">05 / SOURCES</span></div>
+        <div class="searchbar interactive-only">
+          <input id="resourceSearch" type="search" placeholder="搜索资源：如 双一流、AI、专业调整、统计公报……" />
+          <select id="resourceFilter"><option value="all">全部类别</option></select>
+        </div>
+        <div class="resource-list" id="resourceList"></div>
+      </section>
+
+      <section class="panel reveal" id="ppt">
+        <div class="section-head"><h2>16页PPT骨架</h2><span class="section-no">06 / SLIDES</span></div>
+        <div class="ppt-grid" id="pptGrid"></div>
+      </section>
+
+      <section class="panel reveal" id="full-report">
+        <details class="full-report-wrap" id="reportDetails" open>
+          <summary><span>完整教学准备报告</span><span class="chip">点击折叠/展开</span></summary>
+          <div class="report-inner">
+            <article>
+<header class="hero" id="top"><p class="eyebrow">知识、大学与发展 · 第12节</p><h1>中国大学发展的反思与前瞻教学准备报告</h1><p class="subtitle">HTML教学文稿｜含讲稿、讲义、数据表、资源清单与来源索引</p></header>
+<aside class="abstract"><strong>执行摘要</strong><p>建议把这节课讲成一堂“以数据校准判断、以争议激活思考、以政策连接未来”的本科课堂，而不是泛泛而谈的“高校成就展”。过去十余年，中国高等教育最显著的变化是：从规模扩张走向普及化平台期，从重点建设走向体系重构，从“专业分工”走向“战略需求+学科交叉+人工智能赋能”的新阶段；与此同时，同质化、评价导向失衡、区域差异、就业结构性压力与人口变化，正在倒逼中国大学进入新一轮深层改革。<sup class="cite"><a href="#ref-1">[1]</a></sup></p></aside>
+<section class="content-section" id="section-1">
+<h2 id="课程定位与核心判断">课程定位与核心判断</h2>
+<p>这节课若要对本科生真正“有启发”，关键不在于把政策文件逐条念完，而在于帮助学生回答三个更高阶的问题：中国大学过去十几年究竟“变强”在哪里；今天最值得反思的结构性矛盾是什么；到2035年前后，中国大学应该往什么方向变。 这一设计也与近年的高等教育研究前沿高度一致。华东师范大学相关研究报告将“教育强国建设、高等教育布局优化、人才自主培养、科技创新、人口结构变化、人工智能赋能、毕业生高质量就业”等列为2024年中国高等教育研究的核心议题。来源：ECNU上传PDF《2024年中国高等教育重大议题与年度热点研究前沿报告》；URL：<a href="https://faculty.ecnu.edu.cn/_upload/article/files/43/46/51acc7c34550ba53d63a7f1c60c7/c8c63e41-9fe5-4fec-ad7c-2c40ba061c03.pdf；访问日期：2026-05-20。[2" rel="noopener noreferrer" target="_blank">https://faculty.ecnu.edu.cn/_upload/article/files/43/46/51acc7c34550ba53d63a7f1c60c7/c8c63e41-9fe5-4fec-ad7c-2c40ba061c03.pdf；访问日期：2026-05-20。[2</a>]</p>
+<p>从官方统计看，中国大学已经进入一个非常不同于2010年代初的阶段。2012年，全国高等教育总规模为3325万人，毛入学率30%；到2023年，总规模增至4763.19万人、毛入学率60.2%；到2024年，进一步增至4846万人、毛入学率60.8%。同期，全国高等学校数量从2012年的2790所增至2024年的3119所，教育部公布的截至2025年6月20日全国高校名单显示，全国高等学校共3167所。换言之，过去十余年的主要变化不只是“多建了一些学校”，更是既有学校的大规模扩容、层次分化、功能重组与战略再定位。来源：教育部统计公报与高校名单；URL：<a href="http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202410/t20241024_1159002.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html、https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html；访问日期：2026-05-20。[3" rel="noopener noreferrer" target="_blank">http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202410/t20241024_1159002.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html、https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html；访问日期：2026-05-20。[3</a>]</p>
+<p>教学上，建议用四个关键词贯穿全课：普及化、分层化、战略化、智能化。其中，“普及化”解释中国大学为何越来越像一个覆盖更广社会群体的公共体系；“分层化”解释为什么机会扩大并不自动等于结构公平；“战略化”解释大学为何被更强地嵌入国家创新与产业转型逻辑；“智能化”则是面向未来最具时效性的切口。这个判断可由近年政策与现实变化同时支撑：一方面，《教育强国建设规划纲要（2024—2035年）》提出分类推进高校改革发展、优化高等教育布局、提高高校科技成果转化效能、实施基础学科和交叉学科突破计划；另一方面，2026年《“人工智能+教育”行动计划》明确提出，到2030年要基本形成人工智能与教育深度融合的发展格局，高等教育阶段强调学科交叉、教育教学创新与研究场景重塑。来源：政策原文及答问；URL：<a href="https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml、https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html、https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html；访问日期：2026-05-20。[4" rel="noopener noreferrer" target="_blank">https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml、https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html、https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html；访问日期：2026-05-20。[4</a>]</p>
+<h3 id="section-1-sub-1">适合开场直接投屏的关键数据</h3>
+<div class="table-wrap"><table aria-label="表格 1" id="table-1">
+<thead><tr>
+<th scope="col"><p class="cell-p">指标</p></th>
+<th scope="col"><p class="cell-p">2012</p></th>
+<th scope="col"><p class="cell-p">2023</p></th>
+<th scope="col"><p class="cell-p">2024</p></th>
+<th scope="col"><p class="cell-p">最新延伸</p></th>
+<th scope="col"><p class="cell-p">教学含义</p></th>
+<th scope="col"><p class="cell-p">核验</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">高等教育毛入学率</p></td>
+<td><p class="cell-p">30.0%</p></td>
+<td><p class="cell-p">60.2%</p></td>
+<td><p class="cell-p">60.8%</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">中国已从大众化走向普及化平台期</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-5">[5]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">高等教育总规模</p></td>
+<td><p class="cell-p">3325万人</p></td>
+<td><p class="cell-p">4763.19万人</p></td>
+<td><p class="cell-p">4846万人</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">规模增长约45.7%，但课堂要追问“质量是否同步”</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-5">[5]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">高校总数</p></td>
+<td><p class="cell-p">2790所</p></td>
+<td><p class="cell-p">3074所</p></td>
+<td><p class="cell-p">3119所</p></td>
+<td><p class="cell-p">3167所（截至2025-06-20）</p></td>
+<td><p class="cell-p">“大系统”仍在扩展，但增量不再只靠建校</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-3">[3]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">研究生在学规模</p></td>
+<td><p class="cell-p">171.98万人</p></td>
+<td><p class="cell-p">388.29万人</p></td>
+<td><p class="cell-p">409.54万人</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">研究生教育快速扩张，人才结构持续上移</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-5">[5]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">2025届高校毕业生规模</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">预计1222万人</p></td>
+<td><p class="cell-p">就业、培养与专业结构联动成为现实压力</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-6">[6]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">高校R&amp;D经费</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">2753.3亿元</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">大学已是国家创新体系重要节点</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-7">[7]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">2024年度本科专业调整</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">3389个布点调整（2023结果，2024公布）</p></td>
+<td><p class="cell-p">新增1839、撤销1428、停招2220（2024结果，2025公布）</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">学科专业正在加速重构，值得课堂重点讨论</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-8">[8]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-1-sub-2">建议在课堂上并置的三类立场</h3>
+<div class="table-wrap"><table aria-label="表格 2" id="table-2">
+<thead><tr>
+<th scope="col"><p class="cell-p">立场类型</p></th>
+<th scope="col"><p class="cell-p">核心论点</p></th>
+<th scope="col"><p class="cell-p">可引导学生思考的问题</p></th>
+<th scope="col"><p class="cell-p">核验</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">政策—战略视角</p></td>
+<td><p class="cell-p">大学首先是教育强国、科技强国、人才强国的重要支撑力量，需服务国家战略需求并增强自主培养与科技转化能力。</p></td>
+<td><p class="cell-p">大学首先应服务谁：国家、社会、学生，还是学术本身？</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-9">[9]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">改革—治理视角</p></td>
+<td><p class="cell-p">中国高教已进入普及化新阶段，关键不再是“扩多少”，而是分类发展、优化评价、改善治理、提高人才培养质量。</p></td>
+<td><p class="cell-p">为什么“规模大”不必然等于“体系强”？</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-10">[10]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">社会—批评视角</p></td>
+<td><p class="cell-p">同质化、排名导向、文科收缩、就业焦虑、AI带来的学术诚信与隐私风险，可能使大学过度工具化。</p></td>
+<td><p class="cell-p">如果大学只按“短期就业”和“产业热度”办学，会失去什么？</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-11">[11]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="content-section" id="section-2">
+<h2 id="教学设计">教学设计</h2>
+<p>在假定90分钟、50名本科生的前提下，最适合的不是满堂讲授，而是“讲授 + 数据解读 + 立场辩论 + 反思性输出”的组合式课堂。这样既能保证知识密度，也能让学生感受到本主题与自己升学、就业、价值选择之间的直接关系。</p>
+<h3 id="section-2-sub-1">学习目标</h3>
+<div class="table-wrap"><table aria-label="表格 3" id="table-3">
+<thead><tr>
+<th scope="col"><p class="cell-p">维度</p></th>
+<th scope="col"><p class="cell-p">学习目标</p></th>
+<th scope="col"><p class="cell-p">对应证据/课程抓手</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">知识目标</p></td>
+<td><p class="cell-p">理解中国大学发展的主要历史阶段，掌握2012年以来高等教育关键变化的核心数据和政策脉络。</p></td>
+<td><p class="cell-p">教育部统计公报、双一流文件、教育强国纲要、AI+教育行动计划。<sup class="cite"><a href="#ref-12">[12]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">能力目标</p></td>
+<td><p class="cell-p">能区分“事实、判断、立场”三者，能够基于数据和来源讨论中国大学改革中的争议问题。</p></td>
+<td><p class="cell-p">课堂数据拼图、小组辩论、作业写作。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">价值目标</p></td>
+<td><p class="cell-p">形成对大学公共性、学术性、战略性之间关系的初步理解，避免把大学简单等同于“文凭工厂”或“就业培训所”。</p></td>
+<td><p class="cell-p">历史案例（恢复高考、西迁）、现实案例（专业调整、AI风险）与多元观点并置。<sup class="cite"><a href="#ref-13">[13]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-2-sub-2">核心问题</h3>
+<div class="table-wrap"><table aria-label="表格 4" id="table-4">
+<thead><tr>
+<th scope="col"><p class="cell-p">核心问题</p></th>
+<th scope="col"><p class="cell-p">课堂作用</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">中国大学过去十几年最重要的变化，究竟是“更大”还是“更强”？</p></td>
+<td><p class="cell-p">把“规模”和“质量”区分开。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">“双一流”“专业调整”“AI赋能”分别解决了什么问题，又制造了什么新问题？</p></td>
+<td><p class="cell-p">引导学生看到政策的双刃剑效应。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">面向2035，中国大学应优先追求世界排名、就业效率、国家战略服务，还是完整人格培养？</p></td>
+<td><p class="cell-p">激发价值判断与公共讨论。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">在人口变化与技术变革背景下，什么样的大学才算“好大学”？</p></td>
+<td><p class="cell-p">收束到课程主题“反思与前瞻”。</p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-2-sub-3">课堂结构与时间分配</h3>
+<div class="table-wrap"><table aria-label="表格 5" id="table-5">
+<thead><tr>
+<th scope="col"><p class="cell-p">时段</p></th>
+<th scope="col"><p class="cell-p">板块</p></th>
+<th scope="col"><p class="cell-p">内容</p></th>
+<th scope="col"><p class="cell-p">方法</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">0–8分钟</p></td>
+<td><p class="cell-p">导入</p></td>
+<td><p class="cell-p">以两条最新消息切入：2026年给四所交通大学回信、2026年“人工智能+教育”行动计划。</p></td>
+<td><p class="cell-p">教师导入 + 即时投票。<sup class="cite"><a href="#ref-14">[14]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">8–22分钟</p></td>
+<td><p class="cell-p">历史脉络</p></td>
+<td><p class="cell-p">从京师大学堂、院系调整、恢复高考讲到重点建设和普及化。</p></td>
+<td><p class="cell-p">微型讲授。<sup class="cite"><a href="#ref-15">[15]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">22–40分钟</p></td>
+<td><p class="cell-p">主要成就</p></td>
+<td><p class="cell-p">用官方数据说明普及化、研究生扩张、创新能力提升。</p></td>
+<td><p class="cell-p">数据投屏 + 学生读表。<sup class="cite"><a href="#ref-16">[16]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">40–58分钟</p></td>
+<td><p class="cell-p">结构性反思</p></td>
+<td><p class="cell-p">讨论同质化、评价导向、专业调整、就业压力。</p></td>
+<td><p class="cell-p">小组数据拼图。<sup class="cite"><a href="#ref-17">[17]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">58–75分钟</p></td>
+<td><p class="cell-p">前瞻</p></td>
+<td><p class="cell-p">讨论教育强国纲要、区域布局优化、AI+教育、优质本科扩容。</p></td>
+<td><p class="cell-p">情景分析 + 教师讲授。<sup class="cite"><a href="#ref-18">[18]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">75–87分钟</p></td>
+<td><p class="cell-p">讨论与辩论</p></td>
+<td><p class="cell-p">“中国大学首先应该服务什么？”</p></td>
+<td><p class="cell-p">四组立场辩论。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">87–90分钟</p></td>
+<td><p class="cell-p">收束</p></td>
+<td><p class="cell-p">一句话写下：如果你是校长/教育部长，你最想改什么？</p></td>
+<td><p class="cell-p">Exit ticket。</p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-2-sub-4">教学方法与活动</h3>
+<p>建议把课堂活动设计成三个层次：先用事实抵达问题，再用问题逼近立场，最后用立场反推方案。</p>
+<p>第一层活动是“匿名投票破题”。教师出示问题：“大学首先应该服务什么？” 选项可设为“国家战略、学生成长、学术创新、地方社会、就业竞争力”。学生并不会立刻有标准答案，但投票分布本身，就是后续整堂课最重要的“问题地图”。</p>
+<p>第二层活动是“数据拼图”。可将全班分成5组，每组领取一份不同材料：A组看2012/2023/2024统计公报；B组看双一流建设成效；C组看专业调整；D组看毕业生规模与人口数据；E组看AI+教育行动计划与数字教育政策。每组回答两问：这份材料说明中国大学“变好了”的一面是什么？这份材料同时暴露了什么新问题？ 这样可以避免课堂沦为单向灌输。相关材料分别来自教育部、国家统计局和国务院系统。<sup class="cite"><a href="#ref-19">[19]</a></sup></p>
+<p>第三层活动是“四角辩论”。四个角分别代表四种判断：应继续优先扩容优质本科、应放缓扩容转向质量治理、应加速AI与交叉学科重构、应首先守住大学的人文与公共性。 让学生按认同度站位，再轮流举证。教师不做“裁判”，而做“证据管理员”：只追问一句——你的论点依据哪条数据、哪项政策、哪位专家观点？</p>
+<h3 id="section-2-sub-5">评估方式</h3>
+<div class="table-wrap"><table aria-label="表格 6" id="table-6">
+<thead><tr>
+<th scope="col"><p class="cell-p">评估项目</p></th>
+<th scope="col"><p class="cell-p">比例</p></th>
+<th scope="col"><p class="cell-p">说明</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">课堂参与</p></td>
+<td><p class="cell-p">20%</p></td>
+<td><p class="cell-p">含投票、数据拼图、小组发言、辩论参与。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">课堂材料单</p></td>
+<td><p class="cell-p">20%</p></td>
+<td><p class="cell-p">每组提交一页“事实—解释—问题”表。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">课后作业</p></td>
+<td><p class="cell-p">60%</p></td>
+<td><p class="cell-p">在两种作业中二选一，要求严格标注来源、URL和访问日期。</p></td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="content-section" id="section-3">
+<h2 id="详细讲稿与讲义要点">详细讲稿与讲义要点</h2>
+<h3 id="section-3-sub-1">导入与设问</h3>
+<div class="script"><div class="callout-title">教师讲稿（可直接讲）</div><p>同学们，今天我们不把“中国大学”当作一个抽象名词，而把它当作一个正在快速变化、而且和你们每个人命运直接相关的制度现场。为什么这门课要在今天讲？因为就在2026年4月，中央给上海交通大学、西安交通大学、西南交通大学、北京交通大学全体师生回信，强调高校要“聚焦国家重大战略需求，加强科技自主创新和人才自主培养”；同月发布的《“人工智能+教育”行动计划》又提出，到2030年要基本形成人工智能与教育深度融合的发展格局。也就是说，中国大学正在同时面对国家战略、技术革命与人才培养三重压力。来源：新华社、教育部答问；URL：<a href="https://www.news.cn/politics/leaders/20260407/f9ba6b7e53264efe88797df851af1e93/c.html、https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html；访问日期：2026-05-20。[14" rel="noopener noreferrer" target="_blank">https://www.news.cn/politics/leaders/20260407/f9ba6b7e53264efe88797df851af1e93/c.html、https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html；访问日期：2026-05-20。[14</a>]</p></div>
+<div class="teaching-note"><div class="callout-title">讲义要点</div><p>请学生先写下两个判断：第一，你认为大学最重要的功能是什么；第二，你担心今天的大学最容易失去什么。把这两个问题放到课尾再回看，学生会更能感受到自己判断的变化。</p></div>
+<h3 id="section-3-sub-2">历史脉络</h3>
+<div class="script"><div class="callout-title">教师讲稿（可直接讲）</div><p>如果把中国大学发展的长历史压缩成几分钟，可以抓住四个节点。第一个节点是1898年的京师大学堂，它通常被视为中国近代第一所国立综合性大学，后发展为北京大学，标志着现代大学制度在中国的开端。第二个节点是1952年的院系调整，它按照国家工业化和计划经济逻辑重组了大学体系，强化了工科和行业院校，也让许多原本综合性的大学转向专业化。第三个节点是1977年恢复高考、1978年恢复研究生招生，这不仅是教育制度修复，更是社会公平叙事的重建。第四个节点是改革开放以来重点建设与规模扩张不断叠加，最终把中国带入今天这个世界最大规模的高等教育体系。来源：北京大学校史馆、教育部相关专题与高校史料；URL：<a href="https://www.xsg.pku.edu.cn/century.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/s3580/moe_2448/moe_2450/moe_2451/tnull_39623.html、https://www.moe.gov.cn/jyb_xwfb/s5147/202106/t20210609_536812.html；访问日期：2026-05-20。[20" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/century.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/s3580/moe_2448/moe_2450/moe_2451/tnull_39623.html、https://www.moe.gov.cn/jyb_xwfb/s5147/202106/t20210609_536812.html；访问日期：2026-05-20。[20</a>]</p></div>
+<p>1950年代的大学重组并不是冰冷制度，它有很强的历史现场感。交大西迁是最适合本科生理解“大学与国家关系”的案例之一。西安交通大学官方资料显示，交大西迁博物馆以大量照片、图表、实物和多媒体展陈集中呈现了“溯源—西迁—致远”的历史过程；学校专题网将其概括为一段与国家区域战略和知识分子报国相连接的历史。这个案例很适合引导学生理解：中国大学从来不只是校园内部的学术共同体，它始终也在参与国家空间布局与现代化工程。 来源：西安交通大学官方；URL：<a href="https://www.xjtu.edu.cn/tsda/jdxqbwg.htm、https://xq.xjtu.edu.cn/；访问日期：2026-05-20。[21" rel="noopener noreferrer" target="_blank">https://www.xjtu.edu.cn/tsda/jdxqbwg.htm、https://xq.xjtu.edu.cn/；访问日期：2026-05-20。[21</a>]</p>
+<div class="teaching-note"><div class="callout-title">讲义要点</div><p>可在板书上写成一句话：“中国大学的现代史，是国家建构史、知识分子史、制度改革史，也是青年机会结构变化史。”</p></div>
+<h3 id="section-3-sub-3">近十年的主要成就</h3>
+<div class="script"><div class="callout-title">教师讲稿（可直接讲）</div><p>过去十几年，中国大学最容易被看见的成就是“变大”，但更重要的是“变普及”。2012年高等教育总规模3325万人、毛入学率30%；到2024年，高等教育总规模达到4846万人、毛入学率60.8%，已经进入世界公认的普及化阶段。2024年全国共有高等学校3119所，其中普通本科学校1257所、本科层次职业学校51所、高职专科1562所、成人高校249所；普通和职业本专科在校生3891.26万人，在学研究生409.54万人。来源：教育部统计公报；URL：<a href="http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html；访问日期：2026-05-20。[22" rel="noopener noreferrer" target="_blank">http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html；访问日期：2026-05-20。[22</a>]</p></div>
+<p>第二个成就是高层次人才培养与重点建设的强化。教育部部长在2024年向全国人大常委会所作报告显示，自2016年以来，“双一流”建设高校培养了全国超过50%的硕士和80%的博士，承担了90%以上国家急需高层次人才培养专项任务，同时布局建设了288个基础学科拔尖学生培养基地、14个数理化生国家高层次人才培养中心、16个学科交叉中心和32所国家卓越工程师学院。这个材料非常适合课堂上讨论一个问题：“双一流”究竟只是精英工程，还是国家人才供给机制的一部分？ 来源：新华社报道全国人大常委会审议报告；URL：<a href="https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html；访问日期：2026-05-20。[23" rel="noopener noreferrer" target="_blank">https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html；访问日期：2026-05-20。[23</a>]</p>
+<p>第三个成就是大学在国家创新体系中的地位明显上升。国家统计局发布的《2023年全国科技经费投入统计公报》显示，2023年高等学校R&amp;D经费为2753.3亿元，同比增长14.1%，占全社会R&amp;D经费比重8.3%。教育部在2022年新闻发布会上还给出一组很有教学价值的数据：十年来，高校专利转让及许可合同数量突破6.5万项，专利转化金额从8.2亿元增长到88.9亿元，增幅接近十倍。来源：国家统计局、教育部；URL：<a href="https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html、https://www.moe.gov.cn/fbh/live/2022/54875/mtbd/202209/t20220927_665335.html；访问日期：2026-05-20。[24" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html、https://www.moe.gov.cn/fbh/live/2022/54875/mtbd/202209/t20220927_665335.html；访问日期：2026-05-20。[24</a>]</p>
+<p>第四个成就是优质本科扩容与战略新领域布局开始加速。2025年3月，清华大学宣布有序适度扩大本科招生规模，拟增加约150名本科生招生名额，并成立新的本科通识书院，重点培养“AI+”拔尖创新人才；随后，北京大学、中国人民大学、上海交通大学等多校也宣布新增本科招生计划，领域集中在人工智能、基础学科、工程、医学和新兴前沿方向。来源：清华大学官网、新华网；URL：<a href="https://www.tsinghua.edu.cn/info/1182/117277.htm、https://education.news.cn/20250310/b0922599c1984f4bb1152aa5a0aa32aa/c.html；访问日期：2026-05-20。[25" rel="noopener noreferrer" target="_blank">https://www.tsinghua.edu.cn/info/1182/117277.htm、https://education.news.cn/20250310/b0922599c1984f4bb1152aa5a0aa32aa/c.html；访问日期：2026-05-20。[25</a>]</p>
+<div class="teaching-note"><div class="callout-title">讲义要点</div><p>这一部分不要只说“成就”，而要提醒学生：规模、重点建设、科技成果、优质扩容是四个不同维度。它们并不自动互相转化，恰恰构成了后面“反思”的前提。</p></div>
+<h3 id="section-3-sub-4">结构性反思</h3>
+<div class="script"><div class="callout-title">教师讲稿（可直接讲）</div><p>第一重反思，是普及化之后的同质化问题。当高等教育进入普及化，最大的风险往往不是规模不够，而是大学都朝着同一种“成功模板”奔跑：争排名、拼帽子、追热点专业、强调短期可见绩效。官方政策已经在试图纠偏。2025年《教育强国建设规划纲要（2024—2035年）》明确提出“分类推进高校改革发展，优化高等教育布局”；2025年全国教育工作会议再次强调，要加快建立科技发展和国家战略需求牵引的学科专业设置调整机制，同时优化高等教育布局。来源：政策原文与会议信息；URL：<a href="https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml、https://jyt.xinjiang.gov.cn/edu/jydt/202501/bf047a5fc5c049b2ba60e0676d4df221.shtml；访问日期：2026-05-20。[26" rel="noopener noreferrer" target="_blank">https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml、https://jyt.xinjiang.gov.cn/edu/jydt/202501/bf047a5fc5c049b2ba60e0676d4df221.shtml；访问日期：2026-05-20。[26</a>]</p></div>
+<p>第二重反思，是评价导向长期偏向科研、论文和“帽子”，教学价值被弱化。2020年《深化新时代教育评价改革总体方案》把“破五唯”放到核心位置；教育部对文件的解读明确指出，在高校教师评价中，要纠正“重科研轻教学、重教书轻育人”等行为，强调突出教育教学实绩、改进高校教师科研评价。这一部分非常适合对本科生讲，因为他们最直接感受到的，恰恰是好老师是否把时间精力放在课堂上。来源：教育部专题解读；URL：<a href="https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/zhuanjiawenzhang/202012/t20201222_506789.html；访问日期：2026-05-20。[27" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/zhuanjiawenzhang/202012/t20201222_506789.html；访问日期：2026-05-20。[27</a>]</p>
+<p>第三重反思，是专业调整越来越快，但“调整依据”是否过于短期化。教育部等五部门2023年印发《普通高等教育学科专业设置调整优化改革方案》，提出到2025年优化调整高校20%左右学科专业布点。2023年度本科专业备案和审批结果显示，共涉及3389个专业布点调整；而2024年度（于2025年公布）新增专业点1839个、调整学位授予门类或修业年限157个，同时撤销专业点1428个、停招2220个，撤销、停招明显超过增设。支持者认为，这有利于提高高校对国家战略和产业变化的响应能力；批评者则担心，如果过度依赖短期市场热度，大学会被“即时需求”绑架，基础学科和人文学科会被不断压缩。来源：教育部相关说明、专业目录年度更新答问、媒体与专家评论；URL：<a href="https://jw.beijing.gov.cn/xxgk/2024zcwj/2024qtwj/202407/W020240718383657516635.doc、https://dxs.moe.gov.cn/zx/a/jj/240329/1881512.shtml、https://qspfw.moe.gov.cn/html/edudoc/20250526/23028.html、https://www.21jingji.com/article/20250112/herald/c736a074324beb3dd0584c641eacc0b8.html；访问日期：2026-05-20。[28" rel="noopener noreferrer" target="_blank">https://jw.beijing.gov.cn/xxgk/2024zcwj/2024qtwj/202407/W020240718383657516635.doc、https://dxs.moe.gov.cn/zx/a/jj/240329/1881512.shtml、https://qspfw.moe.gov.cn/html/edudoc/20250526/23028.html、https://www.21jingji.com/article/20250112/herald/c736a074324beb3dd0584c641eacc0b8.html；访问日期：2026-05-20。[28</a>]</p>
+<p>第四重反思，是毕业生规模持续上升，但就业市场并不会自动消化学位扩张。教育部、人社部在2024年11月召开的会议指出，2025届全国普通高校毕业生规模预计达到1222万人，同比增加43万人。与此同时，2024年普通、职业本专科毕业生为1059.38万人，研究生毕业108.36万人。对本科生而言，这一数据最值得讨论之处，不只是“难不难找工作”，而是大学培养的能力结构是否真正与社会变化匹配。来源：教育部会议与统计公报；URL：<a href="https://hudong.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2024/2024_zt01/gzbs/202411/t20241115_1163119.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html；访问日期：2026-05-20。[29" rel="noopener noreferrer" target="_blank">https://hudong.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2024/2024_zt01/gzbs/202411/t20241115_1163119.html、http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html；访问日期：2026-05-20。[29</a>]</p>
+<p>第五重反思，是人口变化与区域差异将把中国大学推入一个新的“总量—结构”时代。国家统计局数据显示，2024年出生人口为954万人，2025年进一步降至792万人。就高等教育而言，这并不意味着大学明天就会“缩小”，但可以合理推断：当出生人口趋势逐步传导到中小学乃至高中，2030年代的大学将不可避免地面临生源结构、区域布局和资源配置的再平衡。与此同时，中央已在政策层面提前回应这一问题：教育强国纲要提出新增高等教育资源适度向中西部地区、民族地区倾斜；早在《关于新时代振兴中西部高等教育的若干意见》推进阶段，教育部就反复强调中西部高等教育“在学校数量、教师数量、在校生数量上都占全国总量的一半多，构成中国高教的半壁江山”。这里很适合引导学生理解：未来大学改革，不只是“强校更强”，还包括“系统怎么更均衡”。 来源：国家统计局、教育部相关发布；URL：<a href="https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html、https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html、https://www.moe.gov.cn/fbh/live/2021/53921/twwd/202112/t20211227_590457.html、https://www.scio.gov.cn/zdgz/jj/202501/t20250120_882581.html；访问日期：2026-05-20。[30" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html、https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html、https://www.moe.gov.cn/fbh/live/2021/53921/twwd/202112/t20211227_590457.html、https://www.scio.gov.cn/zdgz/jj/202501/t20250120_882581.html；访问日期：2026-05-20。[30</a>]</p>
+<p>第六重反思，是AI正在提升大学效率，也同时威胁大学的真实性原则。2026年《“人工智能+教育”行动计划》强调高等教育要注重学科交叉与应用创新；而教育部新闻发布会同时提出，要规范智能产品进校园管理，有效防范学术造假、应试内卷、隐私泄露等问题。这意味着政策制定者已经把AI视为既是机会，也是风险。对本科课堂而言，这是最容易激起学生真实经验的部分，因为他们就在使用生成式AI。来源：教育部发布会与政策答问；URL：<a href="https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202604/t20260414_984731.html、https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html；访问日期：2026-05-20。[31" rel="noopener noreferrer" target="_blank">https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202604/t20260414_984731.html、https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html；访问日期：2026-05-20。[31</a>]</p>
+<div class="teaching-note"><div class="callout-title">讲义要点</div><p>这一部分建议板书为“六个张力”——<br/>规模/质量，分类/同质，科研/教学，调整/稳定，就业/培养，智能/真实。</p></div>
+<h3 id="section-3-sub-5">面向2035的前瞻</h3>
+<div class="script"><div class="callout-title">教师讲稿（可直接讲）</div><p>如果站在2035这个时间坐标上看，中国大学未来十年的关键任务，恐怕不是再重复上一轮成功路径，而是做三种“再平衡”。第一种是规模与结构的再平衡。在普及化已经实现之后，真正的问题不再是“有没有大学上”，而会越来越转向“上什么样的大学、读什么专业、在什么地区读、毕业后进入什么通道”。这也是为什么纲要一边强调高等教育综合实力，一边强调布局优化与分类改革。来源：教育强国纲要；URL：<a href="https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml；访问日期：2026-05-20。[32" rel="noopener noreferrer" target="_blank">https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml；访问日期：2026-05-20。[32</a>]</p></div>
+<p>第二种是国家战略与大学本性的再平衡。2025—2026年的政策语言越来越强调教育、科技、人才一体推进，这没有错，但教学上一定要提醒学生：大学不能只剩“工具理性”。它当然要服务国家战略、服务产业升级、服务区域发展，但同时还必须保持基础研究、自由探索、批判思维与人格养成的空间。否则，大学会越来越高效，却不一定越来越“像大学”。这一判断并非反政策，而是对现代大学复杂使命的补充性理解。相关政策本身也并非只谈科技，不少文件同时强调立德树人、哲学社会科学自主知识体系、网络育人、教材建设与学生全面发展。来源：纲要解读与教育部工作会议。URL：<a href="https://edu.cctv.com/2025/01/20/ARTIdK6XfxN8gwJoz9d2UlAG250120.shtml、https://jyt.xinjiang.gov.cn/edu/jydt/202501/bf047a5fc5c049b2ba60e0676d4df221.shtml；访问日期：2026-05-20。[33" rel="noopener noreferrer" target="_blank">https://edu.cctv.com/2025/01/20/ARTIdK6XfxN8gwJoz9d2UlAG250120.shtml、https://jyt.xinjiang.gov.cn/edu/jydt/202501/bf047a5fc5c049b2ba60e0676d4df221.shtml；访问日期：2026-05-20。[33</a>]</p>
+<p>第三种是技术赋能与教育伦理的再平衡。2025世界数字教育大会和2026世界数字教育大会连续把高等教育教学体系重塑、生成式人工智能应用指南、人工智能赋能高校教学创新提质行动等议题推到前台。其积极面是个性化学习、智能助教、课程资源共享、教学组织优化；其风险面则包括学术诚信、隐私保护、评价异化和学生思维外包。对本科生最有启发的，不是问“要不要用AI”，而是问：在哪些环节它可以替代，在哪些环节必须坚持人的判断、人的创造和人的责任。 来源：世界数字教育大会发布会与教育部相关报道；URL：<a href="https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202605/t20260509_988750.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2025/2025_zt06/pxhy/pxhy_qspj/202505/t20250510_1190082.html；访问日期：2026-05-20。[34" rel="noopener noreferrer" target="_blank">https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202605/t20260509_988750.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2025/2025_zt06/pxhy/pxhy_qspj/202505/t20250510_1190082.html；访问日期：2026-05-20。[34</a>]</p>
+<p>这一部分最后可以用一个“教师的综合判断”收束：未来十年中国大学真正需要的，不是统一奔向“研究型名校模板”，而是在不同层次、不同区域、不同类型上都能回答“我为谁培养什么人、凭什么这样培养、如何证明培养得好”这三个问题。 这是一种基于现有政策与现实问题的综合推断。<sup class="cite"><a href="#ref-35">[35]</a></sup></p>
+<h3 id="section-3-sub-6">结课收束</h3>
+<div class="script"><div class="callout-title">教师讲稿（可直接讲）</div><p>如果今天这节课只留下一个结论，我希望不是“中国大学很好”或“中国大学问题很多”，而是：中国大学正在从“做大”走向“做强”，但“强”不是单一维度的强。 它既包括科研创新能力、自主培养能力，也包括普通学生是否被认真对待、课堂是否真实有效、不同地区和不同类型高校是否都有发展空间、技术是否帮助而非替代教育本身。<br/>最后请大家回到开头的两个问题：大学最重要的功能是什么？今天的大学最容易失去什么？如果你的答案和开头不一样，这节课就达到了目的。</p></div>
+</section>
+<section class="content-section" id="section-4">
+<h2 id="PPT大纲">PPT大纲</h2>
+<p>下表按16页设计。PPT不是讲义复写，建议每页只保留一个中心命题和一组能说话的数据/图像。</p>
+<div class="table-wrap"><table aria-label="表格 7" id="table-7">
+<thead><tr>
+<th scope="col"><p class="cell-p">页码</p></th>
+<th scope="col"><p class="cell-p">标题</p></th>
+<th scope="col"><p class="cell-p">要点</p></th>
+<th scope="col"><p class="cell-p">建议配图/视频</p></th>
+<th scope="col"><p class="cell-p">URL</p></th>
+<th scope="col"><p class="cell-p">访问日期</p></th>
+<th scope="col"><p class="cell-p">核验</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">1</p></td>
+<td><p class="cell-p">题目页</p></td>
+<td><p class="cell-p">中国大学发展的反思与前瞻；副标题可加“从普及化到教育强国”</p></td>
+<td><p class="cell-p">北京大学校史馆首页或校史图像</p></td>
+<td><p class="cell-p"><a href="https://www.xsg.pku.edu.cn/" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-36">[36]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">2</p></td>
+<td><p class="cell-p">为什么今天要讲这节课</p></td>
+<td><p class="cell-p">2026回信；AI+教育行动计划；大学处于历史新阶段</p></td>
+<td><p class="cell-p">新华网相关报道截图</p></td>
+<td><p class="cell-p"><a href="https://www.news.cn/politics/leaders/20260407/f9ba6b7e53264efe88797df851af1e93/c.html" rel="noopener noreferrer" target="_blank">https://www.news.cn/politics/leaders/20260407/f9ba6b7e53264efe88797df851af1e93/c.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-37">[37]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">3</p></td>
+<td><p class="cell-p">一条时间线看中国大学</p></td>
+<td><p class="cell-p">1898、1952、1977、2015、2025、2026</p></td>
+<td><p class="cell-p">时间线可直接用本报告附录mermaid</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-38">[38]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">4</p></td>
+<td><p class="cell-p">中国大学到底变了多大</p></td>
+<td><p class="cell-p">2012→2024：毛入学率、总规模、高校数</p></td>
+<td><p class="cell-p">用统计公报自制折线图</p></td>
+<td><p class="cell-p"><a href="http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html" rel="noopener noreferrer" target="_blank">http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html</a> / <a href="http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html" rel="noopener noreferrer" target="_blank">http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-22">[22]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">5</p></td>
+<td><p class="cell-p">2024中国高等教育结构图</p></td>
+<td><p class="cell-p">本科/职业本科/高职/成人/研究生结构</p></td>
+<td><p class="cell-p">建议做分组条形图</p></td>
+<td><p class="cell-p">同上</p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-39">[39]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">6</p></td>
+<td><p class="cell-p">成就之一：普及化完成</p></td>
+<td><p class="cell-p">60.8%的毛入学率意味着什么</p></td>
+<td><p class="cell-p">教育部统计公报数字卡片</p></td>
+<td><p class="cell-p">同上</p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-39">[39]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">7</p></td>
+<td><p class="cell-p">成就之二：双一流与高层次人才培养</p></td>
+<td><p class="cell-p">&gt;50%硕士、80%博士、288个拔尖基地</p></td>
+<td><p class="cell-p">“双一流”成效新闻页</p></td>
+<td><p class="cell-p"><a href="https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html" rel="noopener noreferrer" target="_blank">https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-23">[23]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">8</p></td>
+<td><p class="cell-p">成就之三：大学成为创新节点</p></td>
+<td><p class="cell-p">高校R&amp;D经费2753.3亿元；专利转化增幅近十倍</p></td>
+<td><p class="cell-p">国家统计局公报+教育部图表</p></td>
+<td><p class="cell-p"><a href="https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html</a> / <a href="https://www.moe.gov.cn/fbh/live/2022/54875/mtbd/202209/t20220927_665335.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/fbh/live/2022/54875/mtbd/202209/t20220927_665335.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-24">[24]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">9</p></td>
+<td><p class="cell-p">反思之一：大学同质化</p></td>
+<td><p class="cell-p">为什么所有学校都想像研究型大学？</p></td>
+<td><p class="cell-p">可配清华/北大/地方高校logo拼贴，不配“排名榜单”更好</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-26">[26]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">10</p></td>
+<td><p class="cell-p">反思之二：评价导向失衡</p></td>
+<td><p class="cell-p">“破五唯”；重科研轻教学的纠偏</p></td>
+<td><p class="cell-p">教育部政策图解/解读页</p></td>
+<td><p class="cell-p"><a href="https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-40">[40]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">11</p></td>
+<td><p class="cell-p">反思之三：专业大调整</p></td>
+<td><p class="cell-p">3389个布点调整；新增1839、撤销1428、停招2220</p></td>
+<td><p class="cell-p">教育部专业目录年度发布页</p></td>
+<td><p class="cell-p"><a href="https://dxs.moe.gov.cn/zx/a/jj/240329/1881512.shtml" rel="noopener noreferrer" target="_blank">https://dxs.moe.gov.cn/zx/a/jj/240329/1881512.shtml</a> / <a href="https://qspfw.moe.gov.cn/html/edudoc/20250526/23028.html" rel="noopener noreferrer" target="_blank">https://qspfw.moe.gov.cn/html/edudoc/20250526/23028.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-8">[8]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">12</p></td>
+<td><p class="cell-p">反思之四：就业与培养错位</p></td>
+<td><p class="cell-p">2025届毕业生预计1222万人</p></td>
+<td><p class="cell-p">教育部会议新闻</p></td>
+<td><p class="cell-p"><a href="https://hudong.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2024/2024_zt01/gzbs/202411/t20241115_1163119.html" rel="noopener noreferrer" target="_blank">https://hudong.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2024/2024_zt01/gzbs/202411/t20241115_1163119.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-6">[6]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">13</p></td>
+<td><p class="cell-p">反思之五：人口变化将如何影响大学</p></td>
+<td><p class="cell-p">2024出生954万；2025出生792万</p></td>
+<td><p class="cell-p">国家统计局人口公报线图</p></td>
+<td><p class="cell-p"><a href="https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html</a> / <a href="https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-41">[41]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">14</p></td>
+<td><p class="cell-p">前瞻之一：教育强国纲要的大学想象</p></td>
+<td><p class="cell-p">分类改革、区域优化、基础学科、成果转化</p></td>
+<td><p class="cell-p">政策原文页截图</p></td>
+<td><p class="cell-p"><a href="https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml" rel="noopener noreferrer" target="_blank">https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-32">[32]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">15</p></td>
+<td><p class="cell-p">前瞻之二：AI如何改变大学</p></td>
+<td><p class="cell-p">AI机会与AI风险并置</p></td>
+<td><p class="cell-p">教育部发布会或世界数字教育大会页</p></td>
+<td><p class="cell-p"><a href="https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html" rel="noopener noreferrer" target="_blank">https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html</a> / <a href="https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202605/t20260509_988750.html" rel="noopener noreferrer" target="_blank">https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202605/t20260509_988750.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-42">[42]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">16</p></td>
+<td><p class="cell-p">结论页</p></td>
+<td><p class="cell-p">好大学不只“强”，还要“真、稳、厚、活”</p></td>
+<td><p class="cell-p">留空给课堂讨论结论</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">—</p></td>
+<td><p class="cell-p">基于全课综合判断</p></td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="content-section" id="section-5">
+<h2 id="推荐阅读与多模态资源清单">推荐阅读与多模态资源清单</h2>
+<p>说明：下列资源优先选取官方、原始资料、学术机构与权威媒体；“自媒体/专家评论”仅建议作为课堂讨论补充，不建议作为事实主证据。除特别说明外，访问日期均为2026-05-20。</p>
+<h3 id="section-5-sub-1">官方政策与统计数据</h3>
+<div class="table-wrap"><table aria-label="表格 8" id="table-8">
+<thead><tr>
+<th scope="col"><p class="cell-p">类别</p></th>
+<th scope="col"><p class="cell-p">资源</p></th>
+<th scope="col"><p class="cell-p">简短说明</p></th>
+<th scope="col"><p class="cell-p">URL</p></th>
+<th scope="col"><p class="cell-p">访问日期</p></th>
+<th scope="col"><p class="cell-p">核验</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">官方政策</p></td>
+<td><p class="cell-p">《教育强国建设规划纲要（2024—2035年）》</p></td>
+<td><p class="cell-p">本课最重要的前瞻性总文件，适合做“未来十年”主轴文本。</p></td>
+<td><p class="cell-p"><a href="https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml" rel="noopener noreferrer" target="_blank">https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-32">[32]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">官方政策</p></td>
+<td><p class="cell-p">《统筹推进世界一流大学和一流学科建设总体方案》答记者问</p></td>
+<td><p class="cell-p">回看“双一流”启动时的政策目标。</p></td>
+<td><p class="cell-p"><a href="https://www.moe.gov.cn/jyb_xwfb/s271/201511/t20151104_217639.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xwfb/s271/201511/t20151104_217639.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-43">[43]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">官方政策</p></td>
+<td><p class="cell-p">第二轮“双一流”建设高校及学科名单</p></td>
+<td><p class="cell-p">适合课堂说明“双一流”逻辑的变化。</p></td>
+<td><p class="cell-p"><a href="https://dxs.moe.gov.cn/zx/a/jj/220215/1747412.shtml" rel="noopener noreferrer" target="_blank">https://dxs.moe.gov.cn/zx/a/jj/220215/1747412.shtml</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-44">[44]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">官方政策</p></td>
+<td><p class="cell-p">《深化新时代教育评价改革总体方案》解读</p></td>
+<td><p class="cell-p">讲“破五唯”和教学—科研张力时必备。</p></td>
+<td><p class="cell-p"><a href="https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-40">[40]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">官方政策</p></td>
+<td><p class="cell-p">《普通高等教育学科专业设置调整优化改革方案》</p></td>
+<td><p class="cell-p">讲专业调整的制度依据。</p></td>
+<td><p class="cell-p"><a href="https://jw.beijing.gov.cn/xxgk/2024zcwj/2024qtwj/202407/W020240718383657516635.doc" rel="noopener noreferrer" target="_blank">https://jw.beijing.gov.cn/xxgk/2024zcwj/2024qtwj/202407/W020240718383657516635.doc</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-45">[45]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">官方政策</p></td>
+<td><p class="cell-p">《“人工智能+教育”行动计划》</p></td>
+<td><p class="cell-p">讲中国大学未来十年的AI议题时必备。</p></td>
+<td><p class="cell-p"><a href="https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html" rel="noopener noreferrer" target="_blank">https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-46">[46]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">统计数据</p></td>
+<td><p class="cell-p">《2024年全国教育事业发展统计公报》</p></td>
+<td><p class="cell-p">本课主数据源。</p></td>
+<td><p class="cell-p"><a href="http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html" rel="noopener noreferrer" target="_blank">http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-39">[39]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">统计数据</p></td>
+<td><p class="cell-p">《2023年全国教育事业发展统计公报》</p></td>
+<td><p class="cell-p">用于和2024对比，显示趋势而非单点。</p></td>
+<td><p class="cell-p"><a href="http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202410/t20241024_1159002.html" rel="noopener noreferrer" target="_blank">http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202410/t20241024_1159002.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-47">[47]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">统计数据</p></td>
+<td><p class="cell-p">《2012年全国教育事业发展统计公报》</p></td>
+<td><p class="cell-p">做“十余年纵向对比”的最佳起点。</p></td>
+<td><p class="cell-p"><a href="http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html" rel="noopener noreferrer" target="_blank">http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-48">[48]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">统计数据</p></td>
+<td><p class="cell-p">教育部全国高校名单（截至2025年6月20日）</p></td>
+<td><p class="cell-p">适合显示高校结构最新分布。</p></td>
+<td><p class="cell-p"><a href="https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-49">[49]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">统计数据</p></td>
+<td><p class="cell-p">《2023年全国科技经费投入统计公报》</p></td>
+<td><p class="cell-p">说明大学在国家创新体系中的位置。</p></td>
+<td><p class="cell-p"><a href="https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-7">[7]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">统计数据</p></td>
+<td><p class="cell-p">《中华人民共和国2024/2025年国民经济和社会发展统计公报》</p></td>
+<td><p class="cell-p">用于讨论人口变化与生源结构。</p></td>
+<td><p class="cell-p"><a href="https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html；https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html；https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-41">[41]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-5-sub-2">学术论文与研究报告</h3>
+<div class="table-wrap"><table aria-label="表格 9" id="table-9">
+<thead><tr>
+<th scope="col"><p class="cell-p">类别</p></th>
+<th scope="col"><p class="cell-p">资源</p></th>
+<th scope="col"><p class="cell-p">简短说明</p></th>
+<th scope="col"><p class="cell-p">URL</p></th>
+<th scope="col"><p class="cell-p">访问日期</p></th>
+<th scope="col"><p class="cell-p">核验</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">学术论文</p></td>
+<td><p class="cell-p">Wang, Higher Education Governance and University Autonomy in China</p></td>
+<td><p class="cell-p">讨论中国大学治理与自主性的经典英文文献，虽较早，但理论价值高。</p></td>
+<td><p class="cell-p"><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649736" rel="noopener noreferrer" target="_blank">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649736</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-50">[50]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">学术论文</p></td>
+<td><p class="cell-p">Wang, Quality Assurance in Higher Education in China</p></td>
+<td><p class="cell-p">可补充“评价—治理—质量保障”链条。</p></td>
+<td><p class="cell-p"><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649707" rel="noopener noreferrer" target="_blank">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649707</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-51">[51]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">学术论文</p></td>
+<td><p class="cell-p">《中国高校和科研机构科技成果转化的问题与对策研究》</p></td>
+<td><p class="cell-p">NSFC公开论文，适合讲科技成果转化的制度瓶颈。</p></td>
+<td><p class="cell-p"><a href="https://www.nsfc.gov.cn/csc/20345/20348/pdf/2022/202202-309-315.pdf" rel="noopener noreferrer" target="_blank">https://www.nsfc.gov.cn/csc/20345/20348/pdf/2022/202202-309-315.pdf</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-52">[52]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">学术论文</p></td>
+<td><p class="cell-p">《中国高等教育大众化进程及特征》</p></td>
+<td><p class="cell-p">对扩招与普及化逻辑有概括性描述。</p></td>
+<td><p class="cell-p"><a href="https://dianda.cqvip.com/Qikan/Article/Detail?id=7103406145" rel="noopener noreferrer" target="_blank">https://dianda.cqvip.com/Qikan/Article/Detail?id=7103406145</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-53">[53]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">研究报告</p></td>
+<td><p class="cell-p">《2024年中国高等教育重大议题与年度热点研究前沿报告》</p></td>
+<td><p class="cell-p">最适合做课程问题框架搭建。</p></td>
+<td><p class="cell-p"><a href="https://faculty.ecnu.edu.cn/_upload/article/files/43/46/51acc7c34550ba53d63a7f1c60c7/c8c63e41-9fe5-4fec-ad7c-2c40ba061c03.pdf" rel="noopener noreferrer" target="_blank">https://faculty.ecnu.edu.cn/_upload/article/files/43/46/51acc7c34550ba53d63a7f1c60c7/c8c63e41-9fe5-4fec-ad7c-2c40ba061c03.pdf</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-54">[54]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">研究报告</p></td>
+<td><p class="cell-p">《中国-世界高等教育趋势报告（2025）》</p></td>
+<td><p class="cell-p">第三方趋势观察，适合补充AI、专业调整、就业冲击。</p></td>
+<td><p class="cell-p"><a href="https://www.nju.edu.cn/info/1056/393041.htm" rel="noopener noreferrer" target="_blank">https://www.nju.edu.cn/info/1056/393041.htm</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-55">[55]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">研究报告</p></td>
+<td><p class="cell-p">《北京高等教育发展研究报告（2024～2025）》</p></td>
+<td><p class="cell-p">蓝皮书入口，可供想做北京案例扩展的教师使用。</p></td>
+<td><p class="cell-p"><a href="https://sociology.ssap.com.cn/skwx_shx/BookDetail.aspx?ID=4755" rel="noopener noreferrer" target="_blank">https://sociology.ssap.com.cn/skwx_shx/BookDetail.aspx?ID=4755</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-56">[56]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">研究报告</p></td>
+<td><p class="cell-p">毕马威《机遇之窗：解码中国高等教育产业未来蓝图》</p></td>
+<td><p class="cell-p">更适合作为补充阅读，观察产业视角。</p></td>
+<td><p class="cell-p"><a href="https://assets.kpmg.com/content/dam/kpmgsites/cn/pdf/zh/2024/11/unraveling-the-vision-for-the-future-of-china-s-higher-education-industry.pdf.coredownload.inline.pdf" rel="noopener noreferrer" target="_blank">https://assets.kpmg.com/content/dam/kpmgsites/cn/pdf/zh/2024/11/unraveling-the-vision-for-the-future-of-china-s-higher-education-industry.pdf.coredownload.inline.pdf</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-57">[57]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-5-sub-3">新闻报道与专家评论</h3>
+<div class="table-wrap"><table aria-label="表格 10" id="table-10">
+<thead><tr>
+<th scope="col"><p class="cell-p">类别</p></th>
+<th scope="col"><p class="cell-p">资源</p></th>
+<th scope="col"><p class="cell-p">简短说明</p></th>
+<th scope="col"><p class="cell-p">URL</p></th>
+<th scope="col"><p class="cell-p">访问日期</p></th>
+<th scope="col"><p class="cell-p">核验</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">新闻报道</p></td>
+<td><p class="cell-p">新华网：双一流建设高校人才自主培养能力显著增强</p></td>
+<td><p class="cell-p">用于讲成绩，也可反问其外溢效应。</p></td>
+<td><p class="cell-p"><a href="https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html" rel="noopener noreferrer" target="_blank">https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-23">[23]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">新闻报道</p></td>
+<td><p class="cell-p">新华网：清华、北大、人大等多所高校宣布扩招计划</p></td>
+<td><p class="cell-p">时效性强，显示“优质本科扩容”方向。</p></td>
+<td><p class="cell-p"><a href="https://education.news.cn/20250310/b0922599c1984f4bb1152aa5a0aa32aa/c.html" rel="noopener noreferrer" target="_blank">https://education.news.cn/20250310/b0922599c1984f4bb1152aa5a0aa32aa/c.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-58">[58]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">新闻报道</p></td>
+<td><p class="cell-p">财新：教育部大幅调整本科专业，增设24个新专业</p></td>
+<td><p class="cell-p">适合讲专业调整的社会观感。</p></td>
+<td><p class="cell-p"><a href="https://m.caixin.com/m/2024-03-22/102178199.html" rel="noopener noreferrer" target="_blank">https://m.caixin.com/m/2024-03-22/102178199.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-59">[59]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">新闻报道</p></td>
+<td><p class="cell-p">财新：高校人工智能学院争相落地，中国AI人才是否大爆发？</p></td>
+<td><p class="cell-p">适合讲AI热潮中的培养难点。</p></td>
+<td><p class="cell-p"><a href="https://m.caixin.com/m/2025-03-06/102295030.html" rel="noopener noreferrer" target="_blank">https://m.caixin.com/m/2025-03-06/102295030.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-60">[60]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">新闻报道</p></td>
+<td><p class="cell-p">财新观察：高校专业调整如何越调越优</p></td>
+<td><p class="cell-p">适合引入专业调整争议。</p></td>
+<td><p class="cell-p"><a href="https://weekly.caixin.com/2025-08-23/102354611.html" rel="noopener noreferrer" target="_blank">https://weekly.caixin.com/2025-08-23/102354611.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-61">[61]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">新闻报道</p></td>
+<td><p class="cell-p">财新：少子化冲击幼儿园、小学招生，中职生源加速下滑</p></td>
+<td><p class="cell-p">适合延伸到人口与学制结构讨论。</p></td>
+<td><p class="cell-p"><a href="https://m.caixin.com/m/2026-03-03/102418758.html" rel="noopener noreferrer" target="_blank">https://m.caixin.com/m/2026-03-03/102418758.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-62">[62]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">专家评论</p></td>
+<td><p class="cell-p">邬大光：成就与预警——我国高等教育普及化进程的思考</p></td>
+<td><p class="cell-p">课堂讨论“普及化之后怎么办”的极好材料。</p></td>
+<td><p class="cell-p"><a href="https://news.eol.cn/xueshu/hui/202304/t20230406_2361546.shtml" rel="noopener noreferrer" target="_blank">https://news.eol.cn/xueshu/hui/202304/t20230406_2361546.shtml</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-63">[63]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">专家评论</p></td>
+<td><p class="cell-p">贺祖斌、别敦荣：2024年高等教育十大关键词</p></td>
+<td><p class="cell-p">用于备课时把握议题框架。</p></td>
+<td><p class="cell-p"><a href="https://gjzx.nwu.edu.cn/info/1019/3484.htm" rel="noopener noreferrer" target="_blank">https://gjzx.nwu.edu.cn/info/1019/3484.htm</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-64">[64]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">专家评论</p></td>
+<td><p class="cell-p">别敦荣：以战略规划引领高等教育高质量发展</p></td>
+<td><p class="cell-p">对“2035前是高质量发展的关键窗口期”有启发。</p></td>
+<td><p class="cell-p"><a href="https://www.hebcj.cn/info/1204/8482.htm" rel="noopener noreferrer" target="_blank">https://www.hebcj.cn/info/1204/8482.htm</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-65">[65]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">自媒体/评论</p></td>
+<td><p class="cell-p">熊丙奇：2025年十大教育热点回顾与解读</p></td>
+<td><p class="cell-p">可作为课堂多元视角补充，不作事实主证据。</p></td>
+<td><p class="cell-p"><a href="https://www.zgcxjy.com.cn/JiaoYoShiDian/32144.html" rel="noopener noreferrer" target="_blank">https://www.zgcxjy.com.cn/JiaoYoShiDian/32144.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-66">[66]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">自媒体/评论</p></td>
+<td><p class="cell-p">知识分子：五年撤销5000多个专业</p></td>
+<td><p class="cell-p">适合引发学生讨论“大学为何不断撤专业”。</p></td>
+<td><p class="cell-p"><a href="https://zhishifenzi.blog.caixin.com/archives/286376" rel="noopener noreferrer" target="_blank">https://zhishifenzi.blog.caixin.com/archives/286376</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-67">[67]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-5-sub-4">图片与视频资源</h3>
+<div class="table-wrap"><table aria-label="表格 11" id="table-11">
+<thead><tr>
+<th scope="col"><p class="cell-p">类别</p></th>
+<th scope="col"><p class="cell-p">资源</p></th>
+<th scope="col"><p class="cell-p">简短说明</p></th>
+<th scope="col"><p class="cell-p">URL</p></th>
+<th scope="col"><p class="cell-p">访问日期</p></th>
+<th scope="col"><p class="cell-p">核验</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">图片</p></td>
+<td><p class="cell-p">北京大学校史馆“百年北大”</p></td>
+<td><p class="cell-p">有京师大学堂到北大的历史文字与可用页面图像。</p></td>
+<td><p class="cell-p"><a href="https://www.xsg.pku.edu.cn/century.html" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/century.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-68">[68]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">图片</p></td>
+<td><p class="cell-p">北京大学校史馆人物页：孙家鼐与《奏拟京师大学堂章程》</p></td>
+<td><p class="cell-p">适合早期现代大学制度起点页。</p></td>
+<td><p class="cell-p"><a href="https://www.xsg.pku.edu.cn/detail/407.html" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/detail/407.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-69">[69]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">图片</p></td>
+<td><p class="cell-p">清华大学图史出版页面</p></td>
+<td><p class="cell-p">可找到校史图片出版物信息。</p></td>
+<td><p class="cell-p"><a href="https://www.tsinghua.edu.cn/info/1709/70319.htm" rel="noopener noreferrer" target="_blank">https://www.tsinghua.edu.cn/info/1709/70319.htm</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-70">[70]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">图片</p></td>
+<td><p class="cell-p">交大西迁博物馆</p></td>
+<td><p class="cell-p">有馆内展陈、照片、实物介绍。</p></td>
+<td><p class="cell-p"><a href="https://www.xjtu.edu.cn/tsda/jdxqbwg.htm" rel="noopener noreferrer" target="_blank">https://www.xjtu.edu.cn/tsda/jdxqbwg.htm</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-71">[71]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">图片</p></td>
+<td><p class="cell-p">西迁精神专题网</p></td>
+<td><p class="cell-p">可用于“大学与国家”主题配图。</p></td>
+<td><p class="cell-p"><a href="https://xq.xjtu.edu.cn/" rel="noopener noreferrer" target="_blank">https://xq.xjtu.edu.cn/</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-72">[72]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">视频</p></td>
+<td><p class="cell-p">新华视频：清华大学2025年将适度扩招本科生</p></td>
+<td><p class="cell-p">1分钟左右，适合导入“AI+扩容”。</p></td>
+<td><p class="cell-p"><a href="https://www.news.cn/20250303/c8a1b7b8435e47b3bf0e2cc089e754ae/c.html" rel="noopener noreferrer" target="_blank">https://www.news.cn/20250303/c8a1b7b8435e47b3bf0e2cc089e754ae/c.html</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-73">[73]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">视频</p></td>
+<td><p class="cell-p">B站：恢复高考纪录片《梦开始的地方·我的1977》</p></td>
+<td><p class="cell-p">适合历史脉络板块课前/课中短剪。</p></td>
+<td><p class="cell-p"><a href="https://www.bilibili.com/video/BV1Zb411S7cC/" rel="noopener noreferrer" target="_blank">https://www.bilibili.com/video/BV1Zb411S7cC/</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-74">[74]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">视频</p></td>
+<td><p class="cell-p">B站：交大《百卅志》第五集《西迁之光》</p></td>
+<td><p class="cell-p">适合“西迁精神”与大学使命。</p></td>
+<td><p class="cell-p"><a href="https://search.bilibili.com/all?keyword=%E4%BA%A4%E5%A4%A7%E8%A5%BF%E8%BF%81" rel="noopener noreferrer" target="_blank">https://search.bilibili.com/all?keyword=%E4%BA%A4%E5%A4%A7%E8%A5%BF%E8%BF%81</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-75">[75]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">视频</p></td>
+<td><p class="cell-p">CCTV：加快建设教育强国，办好人民满意的教育</p></td>
+<td><p class="cell-p">可做宏观政策背景。</p></td>
+<td><p class="cell-p"><a href="https://tv.cctv.com/2022/09/09/VIDEj5k3lr4OF5yIAsbt22Cx220909.shtml" rel="noopener noreferrer" target="_blank">https://tv.cctv.com/2022/09/09/VIDEj5k3lr4OF5yIAsbt22Cx220909.shtml</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-76">[76]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">视频</p></td>
+<td><p class="cell-p">教育部/央视：教育强国建设规划纲要解读</p></td>
+<td><p class="cell-p">适合课后延伸。</p></td>
+<td><p class="cell-p"><a href="https://edu.cctv.com/2025/01/20/ARTIdK6XfxN8gwJoz9d2UlAG250120.shtml" rel="noopener noreferrer" target="_blank">https://edu.cctv.com/2025/01/20/ARTIdK6XfxN8gwJoz9d2UlAG250120.shtml</a></p></td>
+<td><p class="cell-p">2026-05-20</p></td>
+<td><p class="cell-p"><sup class="cite"><a href="#ref-77">[77]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="content-section" id="section-6">
+<h2 id="课堂讨论题与作业">课堂讨论题与作业</h2>
+<h3 id="section-6-sub-1">课堂讨论题</h3>
+<p>建议不要把讨论题设计成“你是否支持某政策”，而应设计成需要比较、权衡和证据支撑的问题。</p>
+<div class="table-wrap"><table aria-label="表格 12" id="table-12">
+<thead><tr>
+<th scope="col"><p class="cell-p">讨论题</p></th>
+<th scope="col"><p class="cell-p">教师追问建议</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">如果把“高等教育毛入学率已达60.8%”理解为成功，那么这种成功主要属于谁：更多青年、国家战略、地方发展，还是大学自身？</p></td>
+<td><p class="cell-p">追问：普及化是否自动带来公平与质量？<sup class="cite"><a href="#ref-39">[39]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">“双一流”是推动整体进步的火车头，还是加剧层级分化的放大器？</p></td>
+<td><p class="cell-p">追问：火车头效应和虹吸效应能否同时存在？<sup class="cite"><a href="#ref-78">[78]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">高校大规模撤销与停招专业，是理性优化，还是对短期市场信号的过度追随？</p></td>
+<td><p class="cell-p">追问：大学应该看三年后的就业，还是十年后的知识结构？<sup class="cite"><a href="#ref-79">[79]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">AI进入大学，是帮助学生学得更好，还是让学习更“像完成任务”？</p></td>
+<td><p class="cell-p">追问：哪些学习环节不能外包给AI？<sup class="cite"><a href="#ref-80">[80]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">未来十年，中国大学最需要增加的是“资源”“自由”“分类”“伦理”还是“耐心”？</p></td>
+<td><p class="cell-p">追问：为什么？你的证据是什么？</p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-6-sub-2">作业设计</h3>
+<div class="table-wrap"><table aria-label="表格 13" id="table-13">
+<thead><tr>
+<th scope="col"><p class="cell-p">作业选项</p></th>
+<th scope="col"><p class="cell-p">要求</p></th>
+<th scope="col"><p class="cell-p">建议字数</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">政策备忘录</p></td>
+<td><p class="cell-p">题目：“面向2035，某省应如何推进大学分类发展？” 以省教育厅咨询稿形式写作，至少引用3项官方政策/统计和2项学术或权威媒体材料。</p></td>
+<td><p class="cell-p">1500–2000字</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">论证短文</p></td>
+<td><p class="cell-p">题目：“中国大学的‘强’应当如何定义？” 要求比较至少两种不同立场，并给出自己的判断。</p></td>
+<td><p class="cell-p">1800–2200字</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">数据评论</p></td>
+<td><p class="cell-p">题目：“从三份教育统计公报看中国高等教育的变与不变”，至少选用2012、2023、2024三组数据。</p></td>
+<td><p class="cell-p">1200–1600字</p></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="section-6-sub-3">评分标准</h3>
+<div class="table-wrap"><table aria-label="表格 14" id="table-14">
+<thead><tr>
+<th scope="col"><p class="cell-p">维度</p></th>
+<th scope="col"><p class="cell-p">比例</p></th>
+<th scope="col"><p class="cell-p">评分要点</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">问题意识</p></td>
+<td><p class="cell-p">20%</p></td>
+<td><p class="cell-p">是否真正回答了题目，是否抓住“反思与前瞻”的张力。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">证据使用</p></td>
+<td><p class="cell-p">30%</p></td>
+<td><p class="cell-p">是否准确使用官方数据、政策与权威材料，是否区分事实与观点。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">论证质量</p></td>
+<td><p class="cell-p">25%</p></td>
+<td><p class="cell-p">结构是否清晰，比较是否充分，推理是否连贯。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">来源规范</p></td>
+<td><p class="cell-p">15%</p></td>
+<td><p class="cell-p">是否完整标注来源、URL、访问日期；是否避免“无来源判断”。</p></td>
+</tr>
+<tr>
+<td><p class="cell-p">原创思考</p></td>
+<td><p class="cell-p">10%</p></td>
+<td><p class="cell-p">是否提出了有辨识度的个人判断，而非简单复述材料。</p></td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section class="content-section" id="section-7">
+<h2 id="附录时间线与图表建议">附录时间线与图表建议</h2>
+<h3 id="section-7-sub-1">可打印时间线</h3>
+<figure class="figure-card" id="figure-1"><img alt="可打印时间线" loading="lazy" src="data:image/png;base64,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"/><figcaption>图1：中国大学发展关键节点时间线。来源：原Word文稿内嵌图。</figcaption></figure>
+<p>时间线中的1898、1977、1978、2015、2020、2022、2025、2026节点分别可由北京大学校史馆、教育部、新华社与国务院系统公开材料交叉验证；1952院系调整与交大西迁可配合高校官方史料讲解。相关来源URL：<a href="https://www.xsg.pku.edu.cn/century.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/s3580/moe_2448/moe_2450/moe_2451/tnull_39623.html、https://www.moe.gov.cn/jyb_xwfb/s5147/202106/t20210609_536812.html、https://www.moe.gov.cn/jyb_xwfb/s271/201511/t20151104_217639.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html、https://dxs.moe.gov.cn/zx/a/jj/220215/1747412.shtml、https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml、https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html；访问日期：2026-05-20。[81" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/century.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/s3580/moe_2448/moe_2450/moe_2451/tnull_39623.html、https://www.moe.gov.cn/jyb_xwfb/s5147/202106/t20210609_536812.html、https://www.moe.gov.cn/jyb_xwfb/s271/201511/t20151104_217639.html、https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html、https://dxs.moe.gov.cn/zx/a/jj/220215/1747412.shtml、https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml、https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html；访问日期：2026-05-20。[81</a>]</p>
+<h3 id="section-7-sub-2">数据可视化建议</h3>
+<div class="table-wrap"><table aria-label="表格 16" id="table-16">
+<thead><tr>
+<th scope="col"><p class="cell-p">图表类型</p></th>
+<th scope="col"><p class="cell-p">建议标题</p></th>
+<th scope="col"><p class="cell-p">数据来源</p></th>
+<th scope="col"><p class="cell-p">课堂用途</p></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><p class="cell-p">折线图</p></td>
+<td><p class="cell-p">2012—2024中国高等教育毛入学率变化</p></td>
+<td><p class="cell-p">2012、2023、2024教育统计公报</p></td>
+<td><p class="cell-p">直观看“普及化”的量化轨迹。<sup class="cite"><a href="#ref-5">[5]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">对比柱状图</p></td>
+<td><p class="cell-p">2012 vs 2024：中国高等教育总规模与高校数量</p></td>
+<td><p class="cell-p">同上</p></td>
+<td><p class="cell-p">说明“扩容主要来自在学规模上升，不只是增校”。<sup class="cite"><a href="#ref-22">[22]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">分组柱状图</p></td>
+<td><p class="cell-p">2023与2024专业调整对比：新增、撤销、停招</p></td>
+<td><p class="cell-p">教育部专业目录年度结果</p></td>
+<td><p class="cell-p">讨论“专业优化”与“专业震荡”。<sup class="cite"><a href="#ref-8">[8]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">结构图/树图</p></td>
+<td><p class="cell-p">2024中国高等教育机构结构</p></td>
+<td><p class="cell-p">2024统计公报</p></td>
+<td><p class="cell-p">帮助学生理解普通本科、职业本科、高职、成人高校的层次结构。<sup class="cite"><a href="#ref-39">[39]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">双轴图</p></td>
+<td><p class="cell-p">2024/2025出生人口与未来大学生源趋势</p></td>
+<td><p class="cell-p">国家统计局人口公报</p></td>
+<td><p class="cell-p">用于说明这是一种“基于人口队列的推断”，不是即刻发生的缩招事实。<sup class="cite"><a href="#ref-41">[41]</a></sup></p></td>
+</tr>
+<tr>
+<td><p class="cell-p">条形图</p></td>
+<td><p class="cell-p">高校R&amp;D经费与专利转化指标</p></td>
+<td><p class="cell-p">国家统计局、教育部</p></td>
+<td><p class="cell-p">强化“大学不仅是教学单位，也是创新节点”。<sup class="cite"><a href="#ref-24">[24]</a></sup></p></td>
+</tr>
+</tbody>
+</table></div>
+<figure class="figure-card" id="figure-2"><img alt="数据可视化建议" loading="lazy" src="data:image/png;base64,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"/><figcaption>图2：课堂可直接展示的高等教育关键转折时间线。来源：原Word文稿内嵌图。</figcaption></figure>
+<p>这一小时间线可直接做成讲义页脚，用于提醒学生：中国大学今天面对的问题，已经不再只是“扩大机会”，而是“在大体系里如何做强、做好、做出差异、做出真实教育”。 <sup class="cite"><a href="#ref-82">[82]</a></sup></p>
+</section>
+<section class="references" id="references">
+<h2 id="参考文献与资料来源索引">参考文献与资料来源索引</h2>
+<p class="ref-note">以下索引由原Word文稿的编号来源自动转换；同一条来源可能对应多个正文引用编号。</p>
+<ol>
+<li><span class="ref-anchor" id="ref-1"></span><span class="ref-anchor" id="ref-39"></span>[1] [39] <a href="https://www.cee.edu.cn/n171/n459/n472/c804898/content.html" rel="noopener noreferrer" target="_blank">https://www.cee.edu.cn/n171/n459/n472/c804898/content.html</a></li>
+<li><span class="ref-anchor" id="ref-2"></span><span class="ref-anchor" id="ref-54"></span>[2] [54] <a href="https://faculty.ecnu.edu.cn/_upload/article/files/43/46/51acc7c34550ba53d63a7f1c60c7/c8c63e41-9fe5-4fec-ad7c-2c40ba061c03.pdf" rel="noopener noreferrer" target="_blank">https://faculty.ecnu.edu.cn/_upload/article/files/43/46/51acc7c34550ba53d63a7f1c60c7/c8c63e41-9fe5-4fec-ad7c-2c40ba061c03.pdf</a></li>
+<li><span class="ref-anchor" id="ref-3"></span><span class="ref-anchor" id="ref-5"></span><span class="ref-anchor" id="ref-12"></span><span class="ref-anchor" id="ref-16"></span><span class="ref-anchor" id="ref-19"></span><span class="ref-anchor" id="ref-22"></span><span class="ref-anchor" id="ref-48"></span><span class="ref-anchor" id="ref-82"></span>[3] [5] [12] [16] [19] [22] [48] [82] <a href="https://www.cee.edu.cn/n171/n459/n472/c181392/content.html" rel="noopener noreferrer" target="_blank">https://www.cee.edu.cn/n171/n459/n472/c181392/content.html</a></li>
+<li><span class="ref-anchor" id="ref-4"></span><span class="ref-anchor" id="ref-9"></span><span class="ref-anchor" id="ref-18"></span><span class="ref-anchor" id="ref-26"></span><span class="ref-anchor" id="ref-32"></span><span class="ref-anchor" id="ref-35"></span>[4] [9] [18] [26] [32] [35] <a href="https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml" rel="noopener noreferrer" target="_blank">https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml</a></li>
+<li><span class="ref-anchor" id="ref-6"></span><span class="ref-anchor" id="ref-29"></span>[6] [29] <a href="https://hudong.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2024/2024_zt01/gzbs/202411/t20241115_1163119.html" rel="noopener noreferrer" target="_blank">https://hudong.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2024/2024_zt01/gzbs/202411/t20241115_1163119.html</a></li>
+<li><span class="ref-anchor" id="ref-7"></span><span class="ref-anchor" id="ref-24"></span>[7] [24] <a href="https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html</a></li>
+<li><span class="ref-anchor" id="ref-8"></span>[8] <a href="https://dxs.moe.gov.cn/zx/a/jj/240329/1881512.shtml" rel="noopener noreferrer" target="_blank">https://dxs.moe.gov.cn/zx/a/jj/240329/1881512.shtml</a></li>
+<li><span class="ref-anchor" id="ref-10"></span><span class="ref-anchor" id="ref-63"></span>[10] [63] <a href="https://news.eol.cn/xueshu/hui/202304/t20230406_2361546.shtml" rel="noopener noreferrer" target="_blank">https://news.eol.cn/xueshu/hui/202304/t20230406_2361546.shtml</a></li>
+<li><span class="ref-anchor" id="ref-11"></span>[11] <a href="https://www.21jingji.com/article/20250112/herald/c736a074324beb3dd0584c641eacc0b8.html" rel="noopener noreferrer" target="_blank">https://www.21jingji.com/article/20250112/herald/c736a074324beb3dd0584c641eacc0b8.html</a></li>
+<li><span class="ref-anchor" id="ref-13"></span>[13] <a href="https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/s3580/moe_2448/moe_2450/moe_2451/tnull_39623.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/s3580/moe_2448/moe_2450/moe_2451/tnull_39623.html</a></li>
+<li><span class="ref-anchor" id="ref-14"></span><span class="ref-anchor" id="ref-37"></span>[14] [37] <a href="https://www.news.cn/politics/leaders/20260407/f9ba6b7e53264efe88797df851af1e93/c.html" rel="noopener noreferrer" target="_blank">https://www.news.cn/politics/leaders/20260407/f9ba6b7e53264efe88797df851af1e93/c.html</a></li>
+<li><span class="ref-anchor" id="ref-15"></span><span class="ref-anchor" id="ref-20"></span><span class="ref-anchor" id="ref-38"></span><span class="ref-anchor" id="ref-68"></span><span class="ref-anchor" id="ref-81"></span>[15] [20] [38] [68] [81] <a href="https://www.xsg.pku.edu.cn/century.html" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/century.html</a></li>
+<li><span class="ref-anchor" id="ref-17"></span><span class="ref-anchor" id="ref-27"></span><span class="ref-anchor" id="ref-40"></span>[17] [27] [40] <a href="https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html</a></li>
+<li><span class="ref-anchor" id="ref-21"></span><span class="ref-anchor" id="ref-71"></span>[21] [71] <a href="https://www.xjtu.edu.cn/tsda/jdxqbwg.htm" rel="noopener noreferrer" target="_blank">https://www.xjtu.edu.cn/tsda/jdxqbwg.htm</a></li>
+<li><span class="ref-anchor" id="ref-23"></span><span class="ref-anchor" id="ref-78"></span>[23] [78] <a href="https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html" rel="noopener noreferrer" target="_blank">https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html</a></li>
+<li><span class="ref-anchor" id="ref-25"></span>[25] <a href="https://www.tsinghua.edu.cn/info/1182/117277.htm" rel="noopener noreferrer" target="_blank">https://www.tsinghua.edu.cn/info/1182/117277.htm</a></li>
+<li><span class="ref-anchor" id="ref-28"></span><span class="ref-anchor" id="ref-45"></span>[28] [45] <a href="https://jw.beijing.gov.cn/xxgk/2024zcwj/2024qtwj/202407/W020240718383657516635.doc" rel="noopener noreferrer" target="_blank">https://jw.beijing.gov.cn/xxgk/2024zcwj/2024qtwj/202407/W020240718383657516635.doc</a></li>
+<li><span class="ref-anchor" id="ref-30"></span><span class="ref-anchor" id="ref-41"></span>[30] [41] <a href="https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html" rel="noopener noreferrer" target="_blank">https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html</a></li>
+<li><span class="ref-anchor" id="ref-31"></span>[31] <a href="https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202604/t20260414_984731.html" rel="noopener noreferrer" target="_blank">https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202604/t20260414_984731.html</a></li>
+<li><span class="ref-anchor" id="ref-33"></span><span class="ref-anchor" id="ref-77"></span>[33] [77] <a href="https://edu.cctv.com/2025/01/20/ARTIdK6XfxN8gwJoz9d2UlAG250120.shtml" rel="noopener noreferrer" target="_blank">https://edu.cctv.com/2025/01/20/ARTIdK6XfxN8gwJoz9d2UlAG250120.shtml</a></li>
+<li><span class="ref-anchor" id="ref-34"></span>[34] <a href="https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202605/t20260509_988750.html" rel="noopener noreferrer" target="_blank">https://www.scio.gov.cn/xwfb/bwxwfb/gbwfbh/jyb/202605/t20260509_988750.html</a></li>
+<li><span class="ref-anchor" id="ref-36"></span>[36] <a href="https://www.xsg.pku.edu.cn/" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/</a></li>
+<li><span class="ref-anchor" id="ref-42"></span><span class="ref-anchor" id="ref-80"></span>[42] [80] <a href="https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html" rel="noopener noreferrer" target="_blank">https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html</a></li>
+<li><span class="ref-anchor" id="ref-43"></span>[43] <a href="https://www.moe.gov.cn/jyb_xwfb/s271/201511/t20151104_217639.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xwfb/s271/201511/t20151104_217639.html</a></li>
+<li><span class="ref-anchor" id="ref-44"></span>[44] <a href="https://dxs.moe.gov.cn/zx/a/jj/220215/1747412.shtml" rel="noopener noreferrer" target="_blank">https://dxs.moe.gov.cn/zx/a/jj/220215/1747412.shtml</a></li>
+<li><span class="ref-anchor" id="ref-46"></span>[46] <a href="https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html" rel="noopener noreferrer" target="_blank">https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html</a></li>
+<li><span class="ref-anchor" id="ref-47"></span>[47] <a href="https://www.cee.edu.cn/n171/n459/n472/c756549/content.html" rel="noopener noreferrer" target="_blank">https://www.cee.edu.cn/n171/n459/n472/c756549/content.html</a></li>
+<li><span class="ref-anchor" id="ref-49"></span>[49] <a href="https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html" rel="noopener noreferrer" target="_blank">https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html</a></li>
+<li><span class="ref-anchor" id="ref-50"></span>[50] <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649736" rel="noopener noreferrer" target="_blank">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649736</a></li>
+<li><span class="ref-anchor" id="ref-51"></span>[51] <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649707" rel="noopener noreferrer" target="_blank">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649707</a></li>
+<li><span class="ref-anchor" id="ref-52"></span>[52] <a href="https://www.nsfc.gov.cn/csc/20345/20348/pdf/2022/202202-309-315.pdf" rel="noopener noreferrer" target="_blank">https://www.nsfc.gov.cn/csc/20345/20348/pdf/2022/202202-309-315.pdf</a></li>
+<li><span class="ref-anchor" id="ref-53"></span>[53] <a href="https://dianda.cqvip.com/Qikan/Article/Detail?id=7103406145" rel="noopener noreferrer" target="_blank">https://dianda.cqvip.com/Qikan/Article/Detail?id=7103406145</a></li>
+<li><span class="ref-anchor" id="ref-55"></span>[55] <a href="https://www.nju.edu.cn/info/1056/393041.htm" rel="noopener noreferrer" target="_blank">https://www.nju.edu.cn/info/1056/393041.htm</a></li>
+<li><span class="ref-anchor" id="ref-56"></span>[56] <a href="https://sociology.ssap.com.cn/skwx_shx/BookDetail.aspx?ID=4755" rel="noopener noreferrer" target="_blank">https://sociology.ssap.com.cn/skwx_shx/BookDetail.aspx?ID=4755</a></li>
+<li><span class="ref-anchor" id="ref-57"></span>[57] <a href="https://assets.kpmg.com/content/dam/kpmgsites/cn/pdf/zh/2024/11/unraveling-the-vision-for-the-future-of-china-s-higher-education-industry.pdf.coredownload.inline.pdf" rel="noopener noreferrer" target="_blank">https://assets.kpmg.com/content/dam/kpmgsites/cn/pdf/zh/2024/11/unraveling-the-vision-for-the-future-of-china-s-higher-education-industry.pdf.coredownload.inline.pdf</a></li>
+<li><span class="ref-anchor" id="ref-58"></span>[58] <a href="https://education.news.cn/20250310/b0922599c1984f4bb1152aa5a0aa32aa/c.html" rel="noopener noreferrer" target="_blank">https://education.news.cn/20250310/b0922599c1984f4bb1152aa5a0aa32aa/c.html</a></li>
+<li><span class="ref-anchor" id="ref-59"></span>[59] <a href="https://m.caixin.com/m/2024-03-22/102178199.html" rel="noopener noreferrer" target="_blank">https://m.caixin.com/m/2024-03-22/102178199.html</a></li>
+<li><span class="ref-anchor" id="ref-60"></span>[60] <a href="https://m.caixin.com/m/2025-03-06/102295030.html" rel="noopener noreferrer" target="_blank">https://m.caixin.com/m/2025-03-06/102295030.html</a></li>
+<li><span class="ref-anchor" id="ref-61"></span>[61] <a href="https://weekly.caixin.com/2025-08-23/102354611.html" rel="noopener noreferrer" target="_blank">https://weekly.caixin.com/2025-08-23/102354611.html</a></li>
+<li><span class="ref-anchor" id="ref-62"></span>[62] <a href="https://m.caixin.com/m/2026-03-03/102418758.html" rel="noopener noreferrer" target="_blank">https://m.caixin.com/m/2026-03-03/102418758.html</a></li>
+<li><span class="ref-anchor" id="ref-64"></span>[64] <a href="https://gjzx.nwu.edu.cn/info/1019/3484.htm" rel="noopener noreferrer" target="_blank">https://gjzx.nwu.edu.cn/info/1019/3484.htm</a></li>
+<li><span class="ref-anchor" id="ref-65"></span>[65] <a href="https://www.hebcj.cn/info/1204/8482.htm" rel="noopener noreferrer" target="_blank">https://www.hebcj.cn/info/1204/8482.htm</a></li>
+<li><span class="ref-anchor" id="ref-66"></span>[66] <a href="https://www.zgcxjy.com.cn/JiaoYoShiDian/32144.html" rel="noopener noreferrer" target="_blank">https://www.zgcxjy.com.cn/JiaoYoShiDian/32144.html</a></li>
+<li><span class="ref-anchor" id="ref-67"></span>[67] <a href="https://zhishifenzi.blog.caixin.com/archives/286376" rel="noopener noreferrer" target="_blank">https://zhishifenzi.blog.caixin.com/archives/286376</a></li>
+<li><span class="ref-anchor" id="ref-69"></span>[69] <a href="https://www.xsg.pku.edu.cn/detail/407.html" rel="noopener noreferrer" target="_blank">https://www.xsg.pku.edu.cn/detail/407.html</a></li>
+<li><span class="ref-anchor" id="ref-70"></span>[70] <a href="https://www.tsinghua.edu.cn/info/1709/70319.htm" rel="noopener noreferrer" target="_blank">https://www.tsinghua.edu.cn/info/1709/70319.htm</a></li>
+<li><span class="ref-anchor" id="ref-72"></span>[72] <a href="https://xq.xjtu.edu.cn/" rel="noopener noreferrer" target="_blank">https://xq.xjtu.edu.cn/</a></li>
+<li><span class="ref-anchor" id="ref-73"></span>[73] <a href="https://www.news.cn/20250303/c8a1b7b8435e47b3bf0e2cc089e754ae/c.html" rel="noopener noreferrer" target="_blank">https://www.news.cn/20250303/c8a1b7b8435e47b3bf0e2cc089e754ae/c.html</a></li>
+<li><span class="ref-anchor" id="ref-74"></span>[74] <a href="https://www.bilibili.com/video/BV1Zb411S7cC/" rel="noopener noreferrer" target="_blank">https://www.bilibili.com/video/BV1Zb411S7cC/</a></li>
+<li><span class="ref-anchor" id="ref-75"></span>[75] <a href="https://search.bilibili.com/all?keyword=%E4%BA%A4%E5%A4%A7%E8%A5%BF%E8%BF%81" rel="noopener noreferrer" target="_blank">https://search.bilibili.com/all?keyword=%E4%BA%A4%E5%A4%A7%E8%A5%BF%E8%BF%81</a></li>
+<li><span class="ref-anchor" id="ref-76"></span>[76] <a href="https://tv.cctv.com/2022/09/09/VIDEj5k3lr4OF5yIAsbt22Cx220909.shtml" rel="noopener noreferrer" target="_blank">https://tv.cctv.com/2022/09/09/VIDEj5k3lr4OF5yIAsbt22Cx220909.shtml</a></li>
+<li><span class="ref-anchor" id="ref-79"></span>[79] <a href="https://qspfw.moe.gov.cn/html/edudoc/20250526/23028.html" rel="noopener noreferrer" target="_blank">https://qspfw.moe.gov.cn/html/edudoc/20250526/23028.html</a></li>
+</ol></section>
+</article>
+          </div>
+        </details>
+      </section>
+    </main>
+  </div>
+  <div class="floating-panel interactive-only">
+    <button class="fab" title="回到顶部" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+  </div>
+  <script>
+    const RESOURCES = [{"category": "官方政策", "title": "《教育强国建设规划纲要（2024—2035年）》", "desc": "本课最重要的前瞻性总文件，适合做“未来十年”主轴文本。", "url": "https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml", "date": "2026-05-20", "check": "[32]"}, {"category": "官方政策", "title": "《统筹推进世界一流大学和一流学科建设总体方案》答记者问", "desc": "回看“双一流”启动时的政策目标。", "url": "https://www.moe.gov.cn/jyb_xwfb/s271/201511/t20151104_217639.html", "date": "2026-05-20", "check": "[43]"}, {"category": "官方政策", "title": "第二轮“双一流”建设高校及学科名单", "desc": "适合课堂说明“双一流”逻辑的变化。", "url": "https://dxs.moe.gov.cn/zx/a/jj/220215/1747412.shtml", "date": "2026-05-20", "check": "[44]"}, {"category": "官方政策", "title": "《深化新时代教育评价改革总体方案》解读", "desc": "讲“破五唯”和教学—科研张力时必备。", "url": "https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html", "date": "2026-05-20", "check": "[40]"}, {"category": "官方政策", "title": "《普通高等教育学科专业设置调整优化改革方案》", "desc": "讲专业调整的制度依据。", "url": "https://jw.beijing.gov.cn/xxgk/2024zcwj/2024qtwj/202407/W020240718383657516635.doc", "date": "2026-05-20", "check": "[45]"}, {"category": "官方政策", "title": "《“人工智能+教育”行动计划》", "desc": "讲中国大学未来十年的AI议题时必备。", "url": "https://www.nda.gov.cn/sjj/zwgk/zcfb/0413/20260410162428109058250_pc.html", "date": "2026-05-20", "check": "[46]"}, {"category": "统计数据", "title": "《2024年全国教育事业发展统计公报》", "desc": "本课主数据源。", "url": "http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202506/t20250611_1193760.html", "date": "2026-05-20", "check": "[39]"}, {"category": "统计数据", "title": "《2023年全国教育事业发展统计公报》", "desc": "用于和2024对比，显示趋势而非单点。", "url": "http://www.moe.gov.cn/jyb_sjzl/sjzl_fztjgb/202410/t20241024_1159002.html", "date": "2026-05-20", "check": "[47]"}, {"category": "统计数据", "title": "《2012年全国教育事业发展统计公报》", "desc": "做“十余年纵向对比”的最佳起点。", "url": "http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html", "date": "2026-05-20", "check": "[48]"}, {"category": "统计数据", "title": "教育部全国高校名单（截至2025年6月20日）", "desc": "适合显示高校结构最新分布。", "url": "https://www.moe.gov.cn/jyb_xxgk/s5743/s5744/A03/202506/t20250627_1195683.html", "date": "2026-05-20", "check": "[49]"}, {"category": "统计数据", "title": "《2023年全国科技经费投入统计公报》", "desc": "说明大学在国家创新体系中的位置。", "url": "https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html", "date": "2026-05-20", "check": "[7]"}, {"category": "统计数据", "title": "《中华人民共和国2024/2025年国民经济和社会发展统计公报》", "desc": "用于讨论人口变化与生源结构。", "url": "https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html；https://www.stats.gov.cn/sj/zxfb/202602/t20260228_1962662.html", "date": "2026-05-20", "check": "[41]"}, {"category": "学术论文", "title": "Wang, Higher Education Governance and University Autonomy in China", "desc": "讨论中国大学治理与自主性的经典英文文献，虽较早，但理论价值高。", "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649736", "date": "2026-05-20", "check": "[50]"}, {"category": "学术论文", "title": "Wang, Quality Assurance in Higher Education in China", "desc": "可补充“评价—治理—质量保障”链条。", "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2649707", "date": "2026-05-20", "check": "[51]"}, {"category": "学术论文", "title": "《中国高校和科研机构科技成果转化的问题与对策研究》", "desc": "NSFC公开论文，适合讲科技成果转化的制度瓶颈。", "url": "https://www.nsfc.gov.cn/csc/20345/20348/pdf/2022/202202-309-315.pdf", "date": "2026-05-20", "check": "[52]"}, {"category": "学术论文", "title": "《中国高等教育大众化进程及特征》", "desc": "对扩招与普及化逻辑有概括性描述。", "url": "https://dianda.cqvip.com/Qikan/Article/Detail?id=7103406145", "date": "2026-05-20", "check": "[53]"}, {"category": "研究报告", "title": "《2024年中国高等教育重大议题与年度热点研究前沿报告》", "desc": "最适合做课程问题框架搭建。", "url": "https://faculty.ecnu.edu.cn/_upload/article/files/43/46/51acc7c34550ba53d63a7f1c60c7/c8c63e41-9fe5-4fec-ad7c-2c40ba061c03.pdf", "date": "2026-05-20", "check": "[54]"}, {"category": "研究报告", "title": "《中国-世界高等教育趋势报告（2025）》", "desc": "第三方趋势观察，适合补充AI、专业调整、就业冲击。", "url": "https://www.nju.edu.cn/info/1056/393041.htm", "date": "2026-05-20", "check": "[55]"}, {"category": "研究报告", "title": "《北京高等教育发展研究报告（2024～2025）》", "desc": "蓝皮书入口，可供想做北京案例扩展的教师使用。", "url": "https://sociology.ssap.com.cn/skwx_shx/BookDetail.aspx?ID=4755", "date": "2026-05-20", "check": "[56]"}, {"category": "研究报告", "title": "毕马威《机遇之窗：解码中国高等教育产业未来蓝图》", "desc": "更适合作为补充阅读，观察产业视角。", "url": "https://assets.kpmg.com/content/dam/kpmgsites/cn/pdf/zh/2024/11/unraveling-the-vision-for-the-future-of-china-s-higher-education-industry.pdf.coredownload.inline.pdf", "date": "2026-05-20", "check": "[57]"}, {"category": "新闻报道", "title": "新华网：双一流建设高校人才自主培养能力显著增强", "desc": "用于讲成绩，也可反问其外溢效应。", "url": "https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html", "date": "2026-05-20", "check": "[23]"}, {"category": "新闻报道", "title": "新华网：清华、北大、人大等多所高校宣布扩招计划", "desc": "时效性强，显示“优质本科扩容”方向。", "url": "https://education.news.cn/20250310/b0922599c1984f4bb1152aa5a0aa32aa/c.html", "date": "2026-05-20", "check": "[58]"}, {"category": "新闻报道", "title": "财新：教育部大幅调整本科专业，增设24个新专业", "desc": "适合讲专业调整的社会观感。", "url": "https://m.caixin.com/m/2024-03-22/102178199.html", "date": "2026-05-20", "check": "[59]"}, {"category": "新闻报道", "title": "财新：高校人工智能学院争相落地，中国AI人才是否大爆发？", "desc": "适合讲AI热潮中的培养难点。", "url": "https://m.caixin.com/m/2025-03-06/102295030.html", "date": "2026-05-20", "check": "[60]"}, {"category": "新闻报道", "title": "财新观察：高校专业调整如何越调越优", "desc": "适合引入专业调整争议。", "url": "https://weekly.caixin.com/2025-08-23/102354611.html", "date": "2026-05-20", "check": "[61]"}, {"category": "新闻报道", "title": "财新：少子化冲击幼儿园、小学招生，中职生源加速下滑", "desc": "适合延伸到人口与学制结构讨论。", "url": "https://m.caixin.com/m/2026-03-03/102418758.html", "date": "2026-05-20", "check": "[62]"}, {"category": "专家评论", "title": "邬大光：成就与预警——我国高等教育普及化进程的思考", "desc": "课堂讨论“普及化之后怎么办”的极好材料。", "url": "https://news.eol.cn/xueshu/hui/202304/t20230406_2361546.shtml", "date": "2026-05-20", "check": "[63]"}, {"category": "专家评论", "title": "贺祖斌、别敦荣：2024年高等教育十大关键词", "desc": "用于备课时把握议题框架。", "url": "https://gjzx.nwu.edu.cn/info/1019/3484.htm", "date": "2026-05-20", "check": "[64]"}, {"category": "专家评论", "title": "别敦荣：以战略规划引领高等教育高质量发展", "desc": "对“2035前是高质量发展的关键窗口期”有启发。", "url": "https://www.hebcj.cn/info/1204/8482.htm", "date": "2026-05-20", "check": "[65]"}, {"category": "自媒体/评论", "title": "熊丙奇：2025年十大教育热点回顾与解读", "desc": "可作为课堂多元视角补充，不作事实主证据。", "url": "https://www.zgcxjy.com.cn/JiaoYoShiDian/32144.html", "date": "2026-05-20", "check": "[66]"}, {"category": "自媒体/评论", "title": "知识分子：五年撤销5000多个专业", "desc": "适合引发学生讨论“大学为何不断撤专业”。", "url": "https://zhishifenzi.blog.caixin.com/archives/286376", "date": "2026-05-20", "check": "[67]"}, {"category": "图片", "title": "北京大学校史馆“百年北大”", "desc": "有京师大学堂到北大的历史文字与可用页面图像。", "url": "https://www.xsg.pku.edu.cn/century.html", "date": "2026-05-20", "check": "[68]"}, {"category": "图片", "title": "北京大学校史馆人物页：孙家鼐与《奏拟京师大学堂章程》", "desc": "适合早期现代大学制度起点页。", "url": "https://www.xsg.pku.edu.cn/detail/407.html", "date": "2026-05-20", "check": "[69]"}, {"category": "图片", "title": "清华大学图史出版页面", "desc": "可找到校史图片出版物信息。", "url": "https://www.tsinghua.edu.cn/info/1709/70319.htm", "date": "2026-05-20", "check": "[70]"}, {"category": "图片", "title": "交大西迁博物馆", "desc": "有馆内展陈、照片、实物介绍。", "url": "https://www.xjtu.edu.cn/tsda/jdxqbwg.htm", "date": "2026-05-20", "check": "[71]"}, {"category": "图片", "title": "西迁精神专题网", "desc": "可用于“大学与国家”主题配图。", "url": "https://xq.xjtu.edu.cn/", "date": "2026-05-20", "check": "[72]"}, {"category": "视频", "title": "新华视频：清华大学2025年将适度扩招本科生", "desc": "1分钟左右，适合导入“AI+扩容”。", "url": "https://www.news.cn/20250303/c8a1b7b8435e47b3bf0e2cc089e754ae/c.html", "date": "2026-05-20", "check": "[73]"}, {"category": "视频", "title": "B站：恢复高考纪录片《梦开始的地方·我的1977》", "desc": "适合历史脉络板块课前/课中短剪。", "url": "https://www.bilibili.com/video/BV1Zb411S7cC/", "date": "2026-05-20", "check": "[74]"}, {"category": "视频", "title": "B站：交大《百卅志》第五集《西迁之光》", "desc": "适合“西迁精神”与大学使命。", "url": "https://search.bilibili.com/all?keyword=%E4%BA%A4%E5%A4%A7%E8%A5%BF%E8%BF%81", "date": "2026-05-20", "check": "[75]"}, {"category": "视频", "title": "CCTV：加快建设教育强国，办好人民满意的教育", "desc": "可做宏观政策背景。", "url": "https://tv.cctv.com/2022/09/09/VIDEj5k3lr4OF5yIAsbt22Cx220909.shtml", "date": "2026-05-20", "check": "[76]"}, {"category": "视频", "title": "教育部/央视：教育强国建设规划纲要解读", "desc": "适合课后延伸。", "url": "https://edu.cctv.com/2025/01/20/ARTIdK6XfxN8gwJoz9d2UlAG250120.shtml", "date": "2026-05-20", "check": "[77]"}];
+    const PPT = [{"page": "1", "title": "题目页", "point": "中国大学发展的反思与前瞻；副标题可加“从普及化到教育强国”", "media": "北京大学校史馆首页或校史图像", "url": "https://www.xsg.pku.edu.cn/", "check": "[36]"}, {"page": "2", "title": "为什么今天要讲这节课", "point": "2026回信；AI+教育行动计划；大学处于历史新阶段", "media": "新华网相关报道截图", "url": "https://www.news.cn/politics/leaders/20260407/f9ba6b7e53264efe88797df851af1e93/c.html", "check": "[37]"}, {"page": "3", "title": "一条时间线看中国大学", "point": "1898、1952、1977、2015、2025、2026", "media": "时间线可直接用本报告附录mermaid", "url": "—", "check": "[38]"}, {"page": "4", "title": "中国大学到底变了多大", "point": "2012→2024：毛入学率、总规模、高校数", "media": "用统计公报自制折线图", "url": "http://www.moe.gov.cn/srcsite/A03/s180/moe_633/201308/t20130816_155798.html", "check": "[22]"}, {"page": "5", "title": "2024中国高等教育结构图", "point": "本科/职业本科/高职/成人/研究生结构", "media": "建议做分组条形图", "url": "同上", "check": "[39]"}, {"page": "6", "title": "成就之一：普及化完成", "point": "60.8%的毛入学率意味着什么", "media": "教育部统计公报数字卡片", "url": "同上", "check": "[39]"}, {"page": "7", "title": "成就之二：双一流与高层次人才培养", "point": ">50%硕士、80%博士、288个拔尖基地", "media": "“双一流”成效新闻页", "url": "https://www.news.cn/politics/20241105/c44deb4c214345e4bd5df7ba227529f9/c.html", "check": "[23]"}, {"page": "8", "title": "成就之三：大学成为创新节点", "point": "高校R&D经费2753.3亿元；专利转化增幅近十倍", "media": "国家统计局公报+教育部图表", "url": "https://www.stats.gov.cn/sj/zxfb/202410/t20241002_1956810.html", "check": "[24]"}, {"page": "9", "title": "反思之一：大学同质化", "point": "为什么所有学校都想像研究型大学？", "media": "可配清华/北大/地方高校logo拼贴，不配“排名榜单”更好", "url": "—", "check": "[26]"}, {"page": "10", "title": "反思之二：评价导向失衡", "point": "“破五唯”；重科研轻教学的纠偏", "media": "教育部政策图解/解读页", "url": "https://www.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/jyzt_2020n/2020_zt21/baodao/202010/t20201014_494505.html", "check": "[40]"}, {"page": "11", "title": "反思之三：专业大调整", "point": "3389个布点调整；新增1839、撤销1428、停招2220", "media": "教育部专业目录年度发布页", "url": "https://dxs.moe.gov.cn/zx/a/jj/240329/1881512.shtml", "check": "[8]"}, {"page": "12", "title": "反思之四：就业与培养错位", "point": "2025届毕业生预计1222万人", "media": "教育部会议新闻", "url": "https://hudong.moe.gov.cn/jyb_xwfb/xw_zt/moe_357/2024/2024_zt01/gzbs/202411/t20241115_1163119.html", "check": "[6]"}, {"page": "13", "title": "反思之五：人口变化将如何影响大学", "point": "2024出生954万；2025出生792万", "media": "国家统计局人口公报线图", "url": "https://www.stats.gov.cn/sj/zxfb/202502/t20250228_1958817.html", "check": "[41]"}, {"page": "14", "title": "前瞻之一：教育强国纲要的大学想象", "point": "分类改革、区域优化、基础学科、成果转化", "media": "政策原文页截图", "url": "https://www.mee.gov.cn/zcwj/zyygwj/202501/t20250120_1100948.shtml", "check": "[32]"}, {"page": "15", "title": "前瞻之二：AI如何改变大学", "point": "AI机会与AI风险并置", "media": "教育部发布会或世界数字教育大会页", "url": "https://qspfw.moe.gov.cn/html/edudoc/20260414/24018.html", "check": "[42]"}, {"page": "16", "title": "结论页", "point": "好大学不只“强”，还要“真、稳、厚、活”", "media": "留空给课堂讨论结论", "url": "—", "check": "基于全课综合判断"}];
+    const TIMELINE = [
+      {year:'1898', label:'京师大学堂', detail:'现代大学制度在中国的开端，通常被视为中国近代第一所国立综合性大学。'},
+      {year:'1952', label:'院系调整', detail:'按照国家工业化和计划经济逻辑重组大学体系，强化工科和行业院校。'},
+      {year:'1977', label:'恢复高考', detail:'不仅是教育制度修复，也是社会公平叙事的重建。'},
+      {year:'2015', label:'双一流启动', detail:'重点建设逻辑从“985/211”进一步转向世界一流大学和一流学科建设。'},
+      {year:'2020', label:'教育评价改革', detail:'“破五唯”成为高校评价体系纠偏的重要政策语言。'},
+      {year:'2025', label:'教育强国纲要', detail:'分类推进高校改革发展，优化高等教育布局，提升科技成果转化效能。'},
+      {year:'2026', label:'AI+教育', detail:'到2030年基本形成人工智能与教育深度融合的发展格局。'}
+    ];
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+
+    function initProgress() {
+      const bar = $('#progress');
+      window.addEventListener('scroll', () => {
+        const h = document.documentElement.scrollHeight - innerHeight;
+        bar.style.width = (scrollY / h * 100).toFixed(2) + '%';
+      }, {passive:true});
+    }
+    function animateCounters() {
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if(!entry.isIntersecting) return;
+          const el = entry.target;
+          const target = parseFloat(el.dataset.count);
+          const suffix = el.dataset.suffix || '';
+          let start = null;
+          function step(ts) {
+            if(!start) start=ts;
+            const p = Math.min((ts-start)/1100,1);
+            const val = target * (1 - Math.pow(1-p,3));
+            el.textContent = (target < 100 ? val.toFixed(1) : val.toFixed(target % 1 ? 1 : 0)) + suffix;
+            if(p<1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+          obs.unobserve(el);
+        });
+      }, {threshold:.45});
+      $$('[data-count]').forEach(el=>obs.observe(el));
+      const barObs = new IntersectionObserver(entries => {
+        entries.forEach(entry => { if(entry.isIntersecting) { entry.target.style.width = entry.target.dataset.width + '%'; barObs.unobserve(entry.target); } });
+      }, {threshold:.35});
+      $$('.bar').forEach(el=>barObs.observe(el));
+    }
+    function initTimeline() {
+      const box = $('#timelineItems'); const detail = $('#timelineDetail');
+      TIMELINE.forEach((t,i) => {
+        const node = document.createElement('button');
+        node.className = 'time-node' + (i===0?' active':'');
+        node.innerHTML = `<b>${t.year}</b><span>${t.label}</span>`;
+        node.addEventListener('click', () => {
+          $$('.time-node').forEach(n=>n.classList.remove('active'));
+          node.classList.add('active');
+          detail.innerHTML = `<div class="chart-title">${t.year} · ${t.label}</div><p>${t.detail}</p>`;
+        });
+        box.appendChild(node);
+      });
+      detail.innerHTML = `<div class="chart-title">${TIMELINE[0].year} · ${TIMELINE[0].label}</div><p>${TIMELINE[0].detail}</p>`;
+    }
+    function initTabs() {
+      $$('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+        $$('.tab').forEach(b=>b.classList.remove('active'));
+        $$('.tab-panel').forEach(p=>p.classList.remove('active'));
+        btn.classList.add('active'); $('#' + btn.dataset.tab).classList.add('active');
+      }));
+    }
+    function resourceCard(r) {
+      const link = r.url && r.url !== '—' ? `<a href="${r.url}" target="_blank" rel="noopener">打开来源</a>` : '';
+      return `<article class="resource-card" data-category="${r.category}" data-text="${(r.title+' '+r.desc+' '+r.category).replace(/"/g,'&quot;')}">
+        <div class="tag">${r.category} · ${r.check || ''}</div>
+        <h3>${r.title}</h3>
+        <p>${r.desc}</p>
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><small style="color:var(--muted);font-family:var(--mono)">${r.date||''}</small>${link}</div>
+      </article>`;
+    }
+    function initResources() {
+      const list = $('#resourceList'), filter = $('#resourceFilter'), search = $('#resourceSearch');
+      const cats = [...new Set(RESOURCES.map(r=>r.category))].filter(Boolean);
+      cats.forEach(c => { const op=document.createElement('option'); op.value=c; op.textContent=c; filter.appendChild(op); });
+      function render() {
+        const q = (search.value||'').trim().toLowerCase(); const cat = filter.value;
+        const rows = RESOURCES.filter(r => (cat==='all'||r.category===cat) && (!q || (r.title+' '+r.desc+' '+r.category).toLowerCase().includes(q)));
+        list.innerHTML = rows.map(resourceCard).join('') || '<p>没有匹配资源。</p>';
+      }
+      search.addEventListener('input', render); filter.addEventListener('change', render); render();
+    }
+    function initPPT() {
+      $('#pptGrid').innerHTML = PPT.map(p => `<article class="ppt-card"><div><small>${String(p.page).padStart(2,'0')} / 16</small><h3>${p.title}</h3><p>${p.point}</p></div><small>${p.check||''}</small></article>`).join('');
+    }
+    function initTocActive() {
+      const links = $$('#toc a');
+      const map = links.map(a => [a, $(a.getAttribute('href'))]).filter(x=>x[1]);
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if(e.isIntersecting) {
+            links.forEach(a=>a.classList.remove('active'));
+            const item = map.find(x=>x[1]===e.target);
+            if(item) item[0].classList.add('active');
+          }
+        });
+      }, {rootMargin:'-35% 0px -55% 0px', threshold:0});
+      map.forEach(x=>obs.observe(x[1]));
+    }
+    function enhanceReport() {
+      // Convert bracket citations like [12] into chips for visual clarity.
+      const report = $('.report-inner');
+      if(!report) return;
+      const walker = document.createTreeWalker(report, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) { return /\[\d+\]/.test(node.nodeValue) && node.parentNode.nodeName !== 'A' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; }
+      });
+      const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        const frag = document.createDocumentFragment();
+        node.nodeValue.split(/(\[\d+\])/g).forEach(part => {
+          if(/^\[\d+\]$/.test(part)) { const span=document.createElement('span'); span.className='citeref'; span.textContent=part; frag.appendChild(span); }
+          else frag.appendChild(document.createTextNode(part));
+        });
+        node.parentNode.replaceChild(frag,node);
+      });
+    }
+    function toggles() {
+      $('#toggleDark').addEventListener('click',()=>document.body.classList.toggle('dark'));
+      $('#toggleSources').addEventListener('click',()=>document.body.classList.toggle('source-mode'));
+      $('#openReport').addEventListener('click',()=>{ const d=$('#reportDetails'); d.open = true; location.hash='full-report'; });
+    }
+    function revealOnScroll() {
+      const obs = new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting) e.target.animate([{opacity:0, transform:'translateY(20px)'},{opacity:1, transform:'none'}],{duration:600,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'}); }); },{threshold:.12});
+      $$('.reveal').forEach(el=>obs.observe(el));
+    }
+    initProgress(); animateCounters(); initTimeline(); initTabs(); initResources(); initPPT(); initTocActive(); enhanceReport(); toggles(); revealOnScroll();
+  </script>
+</body>
+</html>
